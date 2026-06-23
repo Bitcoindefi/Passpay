@@ -31,14 +31,14 @@ function assetsMatch(
 }
 
 function settlementSourceAssetFromEnv(): InstanceType<typeof Asset> {
-  const raw = process.env.MIGO_SETTLEMENT_SOURCE?.trim();
+  const raw = (process.env.PASSPAY_SETTLEMENT_SOURCE ?? process.env.MIGO_SETTLEMENT_SOURCE)?.trim();
   if (!raw || raw.toLowerCase() === "native") {
     return Asset.native();
   }
   const colon = raw.indexOf(":");
   if (colon < 1 || colon === raw.length - 1) {
     throw new Error(
-      "MIGO_SETTLEMENT_SOURCE must be \"native\" or ASSET_CODE:ISSUER (e.g. USDC:GBBD...)"
+      "PASSPAY_SETTLEMENT_SOURCE must be \"native\" or ASSET_CODE:ISSUER (e.g. USDC:GBBD...)"
     );
   }
   return new Asset(raw.slice(0, colon), raw.slice(colon + 1));
@@ -62,14 +62,14 @@ export async function sendSettlementPayment(
   amount: string,
   settlementAsset: AssetConfig
 ) {
-  const MIGO_SECRET = process.env.MIGO_SECRET!;
+  const PASSPAY_SECRET = process.env.PASSPAY_SECRET ?? process.env.MIGO_SECRET;
   const MERCHANT_PUBLIC = process.env.MERCHANT_PUBLIC!;
 
-  if (!MIGO_SECRET || !MERCHANT_PUBLIC) {
+  if (!PASSPAY_SECRET || !MERCHANT_PUBLIC) {
     throw new Error("Stellar env vars not loaded");
   }
 
-  const sourceKeypair = Keypair.fromSecret(MIGO_SECRET);
+  const sourceKeypair = Keypair.fromSecret(PASSPAY_SECRET);
   const sourcePublic = sourceKeypair.publicKey();
   const account = await server.loadAccount(sourcePublic);
 

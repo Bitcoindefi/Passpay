@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 // qr interno para generar el payload del QR a partir de un split
 export function buildSplitQRPayload(split: Split) {
   return {
-    type: "MIGO_SPLIT_REQUEST",
+    type: "PASSPAY_SPLIT_REQUEST",
     splitId: split.id,
     totalAmount: split.totalAmount,
     settlementAsset: split.settlementAsset,

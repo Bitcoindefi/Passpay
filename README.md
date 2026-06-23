@@ -1,43 +1,55 @@
-# migo-protocol
+# Passpay
 
-Infraestructura de pagos divididos sobre Stellar. Un solo QR interoperable — cada persona paga con su wallet y moneda, el negocio recibe siempre su moneda configurada.
+**Cobrá en cualquier moneda. Liquidá en dólares on-chain.**
 
-Construido en el **ImpactaBootcamp** por Beverly, Araceli, Tamara y Romina.
+Passpay es la capa de orquestación de pagos que conecta **Transferencias 3.0** (el esquema de pagos interoperables del Banco Central de Argentina) con **Stellar**: un comercio cobra en pesos con un QR interoperable, y el valor se liquida instantáneamente on-chain en dólares (USDC) o XLM, con on/off-ramp a través de un **anchor SEP-24**.
 
----
-
-## ¿Qué problema resuelve?
-
-Dividir una cuenta en 2026 sigue siendo un caos:
-- Cada uno usa una app distinta
-- No todos tienen la misma moneda
-- El comercio no quiere integrar 5 sistemas distintos
-- Los pagos grupales son fricción pura
-
-Migo resuelve esto con una sola capa de orquestación.
+> Construido para el track de Integración de Stellar / PULSO Argentina.
 
 ---
 
-## Cómo funciona
+## El problema
+
+Argentina vive dos realidades simultáneas:
+
+1. **Transferencias 3.0** está redefiniendo los pagos locales: QR interoperable, instantáneo, 24/7, entre cualquier billetera y banco.
+2. La demanda de **dólar digital** es de las más altas de la región — pero mover pesos a dólares on-chain es fricción pura.
+
+No existe una capa que una ambos mundos: cobrar en pesos por el rail local y **settlear en dólares on-chain** sin que el comercio tenga que entender de cripto.
+
+## La solución
+
+Passpay es esa capa. El comercio configura su **moneda de liquidación** (USDC/XLM) una vez. A partir de ahí:
 
 ```
-Negocio genera QR → cada persona escanea con su wallet
-       ↓
-Migo recibe pagos en XLM, ARS, USDC, tarjeta...
-       ↓
-Convierte todo al settlementAsset del negocio
-       ↓
-Settlement automático on-chain via Stellar
-       ↓
-Negocio recibe siempre su moneda configurada
+Cliente paga en ARS (Transferencias 3.0)        Cliente paga con wallet Stellar
+        │                                                │
+        ▼                                                ▼
+   QR interoperable EMVCo  ───────►  PASSPAY  ◄───────  QR SEP-7
+   (CVU + Coelsa)                       │              (XLM/USDC)
+                                        ▼
+                         Conversión + liquidación on-chain
+                                        │
+                                        ▼
+                   El comercio recibe SIEMPRE su moneda configurada
+                   (USDC/XLM en Stellar)  ·  off-ramp a ARS vía anchor SEP-24
 ```
 
 ---
 
-## Demo en vivo
+## Cómo toca Stellar (load-bearing)
 
-Transacción real en Stellar testnet:
-[aef8601e08f9961ec4e0d3981c62c208bc93c73661aaac2d98c49fdd06af9313](https://stellar.expert/explorer/testnet/tx/aef8601e08f9961ec4e0d3981c62c208bc93c73661aaac2d98c49fdd06af9313)
+Las integraciones con Stellar **son** el producto, no un adorno:
+
+| Integración | Estándar | Qué hace | Dónde |
+|---|---|---|---|
+| **On/off-ramp dólar ↔ ARS** | **SEP-1 / SEP-10 / SEP-24** | Autenticación web + depósito/retiro interactivo contra un anchor real (Anclap en producción, anchor de referencia de la SDF en testnet). Descubre endpoints dinámicamente vía `stellar.toml`. | [`anchor.service.ts`](api/src/services/anchor.service.ts) |
+| **Liquidación on-chain** | **Path Payment (Horizon)** | Settlement real en Stellar: `pathPaymentStrictReceive` para entregar al comercio exactamente su moneda configurada usando el DEX. | [`stellar.service.ts`](api/src/services/stellar.service.ts) |
+| **Cobro local → on-chain** | **Transferencias 3.0 (BCRA) + EMVCo** | QR interoperable real (TLV + CRC16-CCITT), CVU recaudador, acreditación Coelsa, y liquidación on-chain del valor cobrado. | [`transferencias3.service.ts`](api/src/services/transferencias3.service.ts) |
+| **Tasas de cambio** | **Horizon `/paths`** | Tasa real desde el DEX de Stellar para la conversión entre activos. | [`conversion.service.ts`](api/src/services/conversion.service.ts) |
+| **QR de pago wallet** | **SEP-7** | URI `web+stellar:pay` interoperable para wallets. | [`qr.service.ts`](api/src/services/qr.service.ts) |
+
+El flujo SEP-10 → SEP-24 está **validado end-to-end** contra el anchor de referencia de Stellar en testnet (autenticación + depósito interactivo devuelven token y URL hosted reales).
 
 ---
 
@@ -45,36 +57,38 @@ Transacción real en Stellar testnet:
 
 | Capa | Tecnología |
 |------|-----------|
-| Frontend | Next.js 16 + React 19 + Framer Motion |
+| Frontend | Next.js + React 19 + Tailwind + Framer Motion |
 | Backend | Express + TypeScript |
-| Blockchain | Stellar SDK + Horizon Testnet |
+| Blockchain | `@stellar/stellar-sdk` + Horizon (testnet/mainnet) |
+| Anchor | SEP-1 / SEP-10 / SEP-24 (Anclap · anchor de referencia SDF) |
+| Rail local | Transferencias 3.0 (BCRA) · QR interoperable EMVCo · Coelsa |
 | Wallets | Freighter, xBull, Albedo, LOBSTR |
-| Pagos fiat | MercadoPago, Pomelo |
-| Escrow | Trustless Work (Soroban) — próximo paso |
-| Estado | In-memory (→ PostgreSQL) |
+| Persistencia | Prisma + PostgreSQL |
 
 ---
 
-## Estructura del proyecto
+## Estructura
 
 ```
-migo-project/
-├── api/                          # Backend Express + TypeScript
-│   ├── src/
-│   │   ├── controllers/          # splits, payments, qr
-│   │   ├── services/             # splits, payment, stellar, conversion, webhook
-│   │   ├── types/                # split, payment, asset, payment-intent
-│   │   └── routes/
-│   └── .env                      # variables de entorno (no se commitea)
-│
-└── frontend/                     # Next.js
-    ├── app/
-    │   ├── pos/                  # Pantalla del negocio — genera QR
-    │   ├── pay/[id]/             # Pantalla del pagador — elige wallet y moneda
-    │   └── pay/[id]/success/     # Confirmación con link a Stellar Expert
-    └── lib/
-        ├── api.ts                # Cliente HTTP para el backend
-        └── wallets.ts            # Integración Freighter, xBull, Albedo, LOBSTR
+passpay/
+├── api/                                  # Backend Express + TypeScript
+│   └── src/
+│       ├── services/
+│       │   ├── anchor.service.ts         # SEP-1/10/24 — on/off-ramp
+│       │   ├── transferencias3.service.ts# Transferencias 3.0 + EMVCo QR
+│       │   ├── stellar.service.ts        # settlement on-chain (path payment)
+│       │   ├── conversion.service.ts     # tasas vía DEX Horizon
+│       │   └── qr.service.ts             # SEP-7
+│       ├── controllers/                  # anchor, transferencias3, splits, qr, payments
+│       ├── config/anchor.ts              # presets de anchor (reference / anclap)
+│       └── routes/
+└── frontend/                             # Next.js
+    └── app/
+        ├── page.tsx                      # Home
+        ├── pos/                          # Comercio — QR de cobro
+        ├── pay/[id]/                     # Pagador — wallet + moneda
+        ├── cobrar-ars/                   # Transferencias 3.0 — cobro en ARS
+        └── ramp/                         # Anchor SEP-24 — on/off-ramp dólar
 ```
 
 ---
@@ -84,88 +98,72 @@ migo-project/
 **Requisitos:** Node.js 18+, npm
 
 ```bash
-# Clonar
-git clone https://github.com/tu-usuario/migo-protocol
-cd migo-protocol
-
 # Backend
 cd api
-cp .env.example .env      # completar con claves Stellar testnet
+cp .env.example .env       # completar con claves Stellar testnet
 npm install
-npm run dev               # http://localhost:3001
+npx prisma generate
+npm run dev                # http://localhost:3001
 
 # Frontend (nueva terminal)
 cd frontend
 npm install
-npm run dev               # http://localhost:3000
+npm run dev                # http://localhost:3000
 ```
 
-### Variables de entorno (api/.env)
-
-```env
-DATABASE_URL=postgresql://user:password@host:5432/dbname
-MIGO_SECRET=SA...              # Clave secreta Stellar (testnet)
-MERCHANT_PUBLIC=GA...          # Dirección Stellar del comerciante
-ISSUER_PUBLIC=GA...            # Emisor USDC (testnet)
-PORT=3000
-NODE_ENV=development
-STELLAR_NETWORK=testnet                                       # testnet | mainnet
-STELLAR_HORIZON_URL_TESTNET=https://horizon-testnet.stellar.org
-STELLAR_HORIZON_URL_MAINNET=https://horizon.stellar.org
-ISSUER_PUBLIC_ASSET=            # Issuer de USDC
-                                # Circle testnet: GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5
-                                # Circle mainnet: GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN
-```
+Variables clave (ver [`api/.env.example`](api/.env.example)): `PASSPAY_SECRET`, `MERCHANT_PUBLIC`, `ANCHOR_PROVIDER` (`reference` | `anclap`), `PASSPAY_CVU`, `T3_SETTLE_ASSET_CODE`.
 
 ---
 
-## Máquina de estados
+## API
 
+### Anchor (on/off-ramp · SEP-24)
 ```
-PENDING → PARTIAL → READY_FOR_SETTLEMENT → SETTLED
-PENDING → CANCELLED
+GET  /anchor/info               anchor activo + assets/fiat soportados
+POST /anchor/ramp               inicia depósito/retiro interactivo → { interactiveUrl, transactionId }
+GET  /anchor/transaction/:id    estado SEP-24 (polling)
 ```
 
-Cuando `totalPaid >= totalAmount` el settlement se dispara automáticamente via `stellar.service.ts`.
+### Transferencias 3.0 (BCRA)
+```
+GET  /transferencias3/collector       CVU/alias del comercio recaudador
+POST /transferencias3/qr              genera QR interoperable EMVCo (ARS)
+POST /transferencias3/simulate-payment  acreditación Coelsa + liquidación on-chain
+```
 
----
-
-## API endpoints principales
-
+### Splits / pagos
 ```
 POST /splits                    crear un split
-GET  /splits/:id                obtener estado
-GET  /splits/:id/intent         monto restante y datos para pagar
+GET  /splits/:id                estado
+GET  /splits/:id/intent         monto restante + datos de pago
 POST /splits/:id/pay            registrar un pago
-POST /splits/:id/release        disparar settlement manual
-GET  /splits/:id/qr             QR interoperable SEP-7
+POST /splits/:id/release        disparar settlement
+GET  /splits/:id/qr             QR SEP-7
 ```
 
 ---
 
-## Métodos de pago soportados
+## Demo
 
-- 🔷 Stellar wallets — Freighter, xBull, Albedo, LOBSTR
-- 📱 MercadoPago — ARS, BRL
-- 💳 Pomelo — tarjeta ARS/USD
-- 🏦 Transferencia bancaria
-
----
-
-## Próximos pasos
-
-- [x] Path Payment real via Stellar DEX (Horizon `/paths/strict-receive`)
-- [ ] Trustless Work escrow — fondos en contrato Soroban hasta aprobación
-- [ ] Persistencia con PostgreSQL
-- [ ] Webhook con HMAC signature verification
-- [ ] Rate limiting y sanitización de inputs
+1. **Cobro en ARS** (`/cobrar-ars`): el comercio ingresa un monto → Passpay genera un QR interoperable Transferencias 3.0 (EMVCo) → "Simular pago" acredita los ARS vía Coelsa y **liquida on-chain en Stellar** (link a Stellar Expert).
+2. **Rampa dólar** (`/ramp`): retiro/depósito contra el anchor SEP-24 → se abre el flujo hosted del anchor → polling de estado hasta `completed`.
+3. **Split de pago** (`/pos` → `/pay/:id`): un grupo divide una cuenta, cada quien paga con su wallet/moneda y el comercio recibe su moneda configurada.
 
 ---
 
-## Equipo
+## Roadmap
 
-Beverly · Araceli · Tamara · Romina
+- [x] Path Payment real vía Stellar DEX (Horizon)
+- [x] Anchor SEP-10 + SEP-24 (on/off-ramp), validado en testnet
+- [x] Transferencias 3.0 — QR interoperable EMVCo + acreditación + settlement on-chain
+- [ ] Anclap producción (credenciales ARS ↔ USDC)
+- [ ] Webhook bancario real (Coelsa) en lugar de la simulación
+- [ ] Trustless Work escrow (Soroban) para cobros con liberación condicionada
 
 ---
 
-**ImpactaBootcamp 2026** — construido sobre Stellar
+## Licencia
+
+MIT — ver [LICENSE](./LICENSE). Contribuciones: [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+**Construido sobre Stellar 🌟**

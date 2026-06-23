@@ -65,14 +65,14 @@ try {
         {/* Logo */}
         <div className="text-center mb-8">
             <Image
-            src="/migo-logo.png"
-            alt="Migo POS"
+            src="/passpay-logo.svg"
+            alt="Passpay POS"
             width={250}
-            height={100}
+            height={80}
             priority
             className="w-auto h-auto max-w-xs mx-auto mb-3"
             />
-            <p className="text-sm text-[#FFB800] font-medium">Punto de Venta · Pagos Compartidos</p>
+            <p className="text-sm text-[#16E0A3] font-medium">Punto de Venta · Pagos Compartidos</p>
         </div>
 
         <AnimatePresence mode="wait">
@@ -146,7 +146,7 @@ try {
                     <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setPeople((prev) => Math.min(10, parseInt(prev || '2') + 1).toString())}
-                    className="group relative w-20 h-20 rounded-2xl bg-gradient-to-br from-[#00D9FF] to-[#00B8DD] hover:from-[#00C4EC] hover:to-[#00A5CA] transition-all shadow-lg hover:shadow-xl shadow-[#00D9FF]/20"
+                    className="group relative w-20 h-20 rounded-2xl bg-gradient-to-br from-[#5B4BF5] to-[#3D2FD6] hover:from-[#6D5EF7] hover:to-[#4A39E0] transition-all shadow-lg hover:shadow-xl shadow-[#5B4BF5]/20"
                     >
                     <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     <span className="relative text-4xl font-bold text-white">
@@ -162,10 +162,10 @@ try {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-card p-6 bg-[#00D9FF]/5 border-[#00D9FF]/20 text-center"
+      className="glass-card p-6 bg-[#5B4BF5]/5 border-[#5B4BF5]/20 text-center"
     >
       <p className="text-base text-slate-300 mb-3 font-medium">Cada persona paga:</p>
-      <p className="text-5xl font-black text-[#00D9FF] tabular-nums">
+      <p className="text-5xl font-black text-[#5B4BF5] tabular-nums">
         ${shareAmount}
       </p>
     </motion.div>
@@ -174,7 +174,7 @@ try {
   {/* Botón Generar */}
   <Button
     onClick={handleGenerate}
-    className="w-full h-16 text-xl font-bold bg-gradient-to-r from-[#006B7D] to-[#00D9FF] hover:opacity-90 shadow-lg"
+    className="w-full h-16 text-xl font-bold bg-gradient-to-r from-[#3D2FD6] to-[#5B4BF5] hover:opacity-90 shadow-lg"
   >
     <QrIcon className="w-6 h-6 mr-2" />
     Generar QR
@@ -225,7 +225,7 @@ try {
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-slate-700/30">
                   <span className="text-slate-400">Cada uno paga:</span>
-                  <span className="text-2xl font-bold text-[#00D9FF]">
+                  <span className="text-2xl font-bold text-[#5B4BF5]">
                     ${shareAmount}
                   </span>
                 </div>
@@ -253,7 +253,7 @@ try {
         {/* Footer */}
         <div className="text-center mt-8">
           <p className="text-xs text-slate-500">
-            Migo POS · Powered by Stellar
+            Passpay POS · Powered by Stellar
           </p>
         </div>
       </div>

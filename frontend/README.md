@@ -1,6 +1,6 @@
-# Migo Frontend
+# Passpay Frontend
 
-Interfaz de usuario de Migo Protocol. Construida con Next.js 15 + React 19 + Tailwind CSS
+Interfaz de usuario de Passpay. Construida con Next.js + React 19 + Tailwind CSS
 
 ---
 

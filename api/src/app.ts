@@ -3,6 +3,8 @@ import cors from "cors";
 import splitsRouter from "./routes/splits.routes";
 import { healthRouter } from "./routes/health.routes";
 import qrRouter from "./routes/qr.routes";
+import anchorRouter from "./routes/anchor.routes";
+import transferencias3Router from "./routes/transferencias3.routes";
 
 
 
@@ -16,6 +18,8 @@ export function createApp() {
   app.use("/health", healthRouter);
   app.use("/splits", splitsRouter);
   app.use("/qr", qrRouter);
+  app.use("/anchor", anchorRouter);
+  app.use("/transferencias3", transferencias3Router);
 
   //
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {

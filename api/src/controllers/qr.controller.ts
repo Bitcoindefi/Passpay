@@ -28,7 +28,7 @@ export async function generateSplitQR(req: Request, res: Response) {
     const payload = buildSplitQRPayload(split);
 // Enviar la respuesta con el URI SEP-7 y el payload para fallback
     res.json({
-      type: "MIGO_PAYMENT_SESSION",
+      type: "PASSPAY_PAYMENT_SESSION",
       intentUrl: `http://localhost:3000/splits/${split.id}/intent`
     });
 

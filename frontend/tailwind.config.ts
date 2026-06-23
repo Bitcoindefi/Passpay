@@ -1,4 +1,4 @@
-// Este archivo actualiza los colores de Migo en Tailwind
+// Paleta de marca de Passpay en Tailwind
 
 import type { Config } from "tailwindcss";
 
@@ -45,12 +45,15 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Colores de Migo
-        migo: {
-          cyan: "#00D9FF",
-          blue: "#0066FF",
-          teal: "#00BFA5",
-          yellow: "#FFD54F",
+        // Colores de Passpay
+        passpay: {
+          indigo: "#5B4BF5",
+          "indigo-dark": "#3D2FD6",
+          violet: "#8B7CF8",
+          mint: "#16E0A3",
+          "mint-dark": "#0FB985",
+          deep: "#0B0E14",
+          amber: "#FFB020",
         },
       },
       borderRadius: {

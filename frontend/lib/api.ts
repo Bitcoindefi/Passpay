@@ -51,6 +51,91 @@ export const api = {
       }
     ) => post<any>(`/splits/${splitId}/pay`, body),
   },
+
+  // ── anchor (on/off-ramp dólar ↔ ARS · SEP-24) ────────────
+  anchor: {
+    info: () =>
+      get<{
+        name: string;
+        homeDomain: string;
+        assetCode: string;
+        fiatCurrency: string;
+        networkPassphrase: string;
+      }>("/anchor/info"),
+
+    ramp: (body: { direction: "deposit" | "withdraw"; amount?: string }) =>
+      post<{
+        anchor: string;
+        assetCode: string;
+        fiatCurrency: string;
+        account: string;
+        direction: "deposit" | "withdraw";
+        transactionId: string;
+        interactiveUrl: string;
+        type: string;
+      }>("/anchor/ramp", body),
+
+    transaction: (id: string) =>
+      get<{
+        id: string;
+        kind: string;
+        status: string;
+        amount_in?: string;
+        amount_out?: string;
+        amount_fee?: string;
+        stellar_transaction_id?: string;
+        external_transaction_id?: string;
+        more_info_url?: string;
+        message?: string;
+      }>(`/anchor/transaction/${id}`),
+  },
+
+  // ── Transferencias 3.0 (BCRA) — cobro en ARS ─────────────
+  t3: {
+    collector: () =>
+      get<{ cvu: string; alias: string; name: string; city: string }>(
+        "/transferencias3/collector"
+      ),
+
+    qr: (body: { amountArs: number; reference?: string }) =>
+      post<{
+        emv: string;
+        qrImage: string;
+        fields: {
+          amountArs: number;
+          reference: string;
+          cvu: string;
+          alias: string;
+          merchantName: string;
+          merchantCity: string;
+        };
+      }>("/transferencias3/qr", body),
+
+    simulatePayment: (body: {
+      amountArs: number;
+      reference: string;
+      payer?: string;
+    }) =>
+      post<{
+        rail: string;
+        status: string;
+        bankTransactionId: string;
+        coelsaId: string;
+        amountArs: number;
+        creditedCvu: string;
+        reference: string;
+        payer: string;
+        timestamp: string;
+        settlement: {
+          settled: boolean;
+          settlementAsset?: string;
+          settlementAmount?: string;
+          stellarTxHash?: string;
+          explorerUrl?: string;
+          error?: string;
+        };
+      }>("/transferencias3/simulate-payment", body),
+  },
 };
 
 // mantener compatibilidad con el fetchSplit que ya usabas

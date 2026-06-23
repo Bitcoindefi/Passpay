@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 
 const CURRENCIES = [
   { code: 'XLM', name: 'Stellar Lumens', icon: '💎', color: 'from-blue-500 to-blue-600' },
-  { code: 'USDC', name: 'USD Coin', icon: '💵', color: 'from-[#00D9FF] to-[#00B8DD]' },
+  { code: 'USDC', name: 'USD Coin', icon: '💵', color: 'from-[#5B4BF5] to-[#3D2FD6]' },
   { code: 'ARS', name: 'Pesos Argentinos', icon: '🇦🇷', color: 'from-slate-600 to-slate-700' },
   { code: 'BTC', name: 'Bitcoin', icon: '₿', color: 'from-orange-500 to-orange-600' },
   { code: 'ETH', name: 'Ethereum', icon: 'Ξ', color: 'from-purple-500 to-purple-600' },
@@ -125,10 +125,10 @@ const handlePayWithWallet = async (walletAction: string) => {
 
         <div className="text-center mb-8">
           <Image
-            src="/migo-logo.png"
-            alt="Migo"
+            src="/passpay-logo.svg"
+            alt="Passpay"
             width={200}
-            height={80}
+            height={64}
             priority
             className="w-auto h-auto max-w-xs mx-auto"
           />
@@ -137,7 +137,7 @@ const handlePayWithWallet = async (walletAction: string) => {
 
       <div className="px-4 py-6 space-y-6 max-w-md mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-          <div className="glass-card p-6 bg-[#00D9FF]/5 border-[#00D9FF]/20">
+          <div className="glass-card p-6 bg-[#5B4BF5]/5 border-[#5B4BF5]/20">
             <p className="text-sm text-slate-400 mb-2">Tu parte:</p>
             <p className="text-5xl font-bold text-gradient mb-1">
               {shareAmount.toFixed(2)}
@@ -170,7 +170,7 @@ const handlePayWithWallet = async (walletAction: string) => {
         {selectedCurrency !== baseCurrency && (
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="glass-card p-4 text-center bg-slate-800/30">
             <p className="text-sm text-slate-400 mb-1">Pagarás aproximadamente:</p>
-            <p className="text-3xl font-bold text-[#00D9FF]">
+            <p className="text-3xl font-bold text-[#5B4BF5]">
               {amountInSelectedCurrency} {selectedCurrency}
             </p>
             <p className="text-xs text-slate-500 mt-2">Tasa de cambio estimada</p>
@@ -180,7 +180,7 @@ const handlePayWithWallet = async (walletAction: string) => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Button
             onClick={() => setShowWalletSelector(true)}
-            className="w-full h-16 text-lg font-semibold bg-gradient-to-r from-[#00D9FF] to-[#00B8DD] hover:opacity-90 text-white shadow-lg shadow-[#00D9FF]/20"
+            className="w-full h-16 text-lg font-semibold bg-gradient-to-r from-[#5B4BF5] to-[#3D2FD6] hover:opacity-90 text-white shadow-lg shadow-[#5B4BF5]/20"
           >
             <Wallet className="w-6 h-6 mr-2" /> Pagar con mi Wallet
           </Button>
@@ -207,7 +207,7 @@ const handlePayWithWallet = async (walletAction: string) => {
                     key={wallet.action}
                     onClick={() => handlePayWithWallet(wallet.action)}
                     variant="outline"
-                    className="w-full h-16 justify-between border-2 hover:border-[#00D9FF] hover:bg-[#00D9FF]/5"
+                    className="w-full h-16 justify-between border-2 hover:border-[#5B4BF5] hover:bg-[#5B4BF5]/5"
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-3xl">{wallet.icon}</span>
@@ -224,7 +224,7 @@ const handlePayWithWallet = async (walletAction: string) => {
                   <Button
                     onClick={() => window.open('https://www.freighter.app/', '_blank')}
                     variant="link"
-                    className="text-[#00D9FF] hover:underline text-sm"
+                    className="text-[#5B4BF5] hover:underline text-sm"
                   >
                     Instalar Freighter <ArrowRight className="w-3 h-3 ml-1 inline" />
                   </Button>

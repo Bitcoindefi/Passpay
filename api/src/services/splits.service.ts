@@ -64,7 +64,8 @@ export async function getPaymentIntent(splitId: string): Promise<PaymentIntent> 
     settlementAsset: split.settlementAsset,
     status: split.status as any,
     expiresAt: split.expiresAt,
-    memo: `MIGO_SPLIT_${split.id}`,
+    // memo Stellar (texto, máx. 28 bytes) — usamos un id corto para no exceder el límite
+    memo: `PP-${split.id.slice(0, 8)}`,
   };
 }
 

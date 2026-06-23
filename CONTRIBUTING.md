@@ -1,15 +1,15 @@
-# Contributing to Migo Protocol
+# Contributing to Passpay
 
-Thanks for your interest in contributing to Migo — open source split payment infrastructure built on Stellar.
+Thanks for your interest in contributing to Passpay — open source payment orchestration built on Stellar, bridging Argentina's Transferencias 3.0 with on-chain dollars.
 
-Migo is a **N:1 payment orchestration layer**: multiple people pay in different currencies and wallets, one merchant receives in their configured asset. Every contribution helps make group payments in Latin America faster, fairer, and more accessible.
+Passpay is a **N:1 payment orchestration layer**: multiple people pay in different currencies and wallets, one merchant receives in their configured asset. Every contribution helps make payments in Latin America faster, fairer, and more accessible.
 
 ---
 
 ## Before you start
 
-1. Read the [README](./README.md) to understand how Migo works
-2. Browse the [open issues](https://github.com/migo-labs/migo-protocol/issues) — look for `good first issue` if you're new
+1. Read the [README](./README.md) to understand how Passpay works
+2. Browse the [open issues](https://github.com/Bitcoindefi/Passpay/issues) — look for `good first issue` if you're new
 3. Comment on the issue you want to work on before starting — this avoids duplicate work
 
 ---
@@ -18,8 +18,8 @@ Migo is a **N:1 payment orchestration layer**: multiple people pay in different 
 
 ### 1. Fork and clone
 ```bash
-git clone https://github.com/YOUR_USERNAME/migo-protocol.git
-cd migo-protocol
+git clone https://github.com/YOUR_USERNAME/Passpay.git
+cd Passpay
 ```
 
 ### 2. Set up the project
@@ -61,7 +61,7 @@ git checkout -b fix/your-bug-name
 ## Project structure
 
 ```
-migo-protocol/
+passpay/
 ├── api/                    # Express + TypeScript backend
 │   └── src/
 │       ├── controllers/    # HTTP layer
@@ -85,7 +85,7 @@ migo-protocol/
 - **Split**: a payment request for a total amount, shared by N people
 - **Settlement asset**: the currency the merchant always receives (e.g. USDC)
 - **Payment method**: how each individual pays (XLM, USDC, ARS, MercadoPago, card...)
-- **Conversion**: Migo converts each payment to the settlement asset before settling
+- **Conversion**: Passpay converts each payment to the settlement asset before settling
 - **Settlement**: once `totalPaid >= totalAmount`, an on-chain Stellar transaction sends funds to the merchant automatically
 
 ---
@@ -107,6 +107,6 @@ migo-protocol/
 
 ## Questions?
 
-Open a [GitHub Discussion](https://github.com/migo-labs/migo-protocol/discussions) or reach out on X: [@migopayments](https://x.com/migopayments)
+Open a [GitHub Discussion](https://github.com/Bitcoindefi/Passpay/discussions).
 
-Built with ☀️ in Latin America at ImpactaBootcamp 2026.
+Built with ☀️ in Latin America.

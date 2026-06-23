@@ -6,7 +6,7 @@
 
 ## Contexto
 
-Existen dos protocolos emergentes para pagos programáticos (máquina a máquina) que son relevantes para la evolución futura de Migo:
+Existen dos protocolos emergentes para pagos programáticos (máquina a máquina) que son relevantes para la evolución futura de Passpay:
 
 ---
 
@@ -81,7 +81,7 @@ const mppx = Mppx.create({
 
 ---
 
-## Relevancia para Migo
+## Relevancia para Passpay
 
 ### Corto plazo — ninguna
 El stack actual (Express + Stellar SDK + Horizon) es suficiente para el MVP.
@@ -93,7 +93,7 @@ Cuando se implemente el escrow Soroban, x402 podría reemplazar la lógica manua
 El modo Channel del stellar-mpp-sdk es interesante para casos de uso de alta frecuencia — por ejemplo, un tab abierto en un restaurante donde los clientes pagan micro-pagos off-chain hasta que el comercio cierra el canal.
 
 ### Caso futuro — agentes de IA
-Si Migo evoluciona hacia pagos automatizados (ej: un agente que divide y paga facturas automáticamente), MPP es el protocolo estándar para ese caso.
+Si Passpay evoluciona hacia pagos automatizados (ej: un agente que divide y paga facturas automáticamente), MPP es el protocolo estándar para ese caso.
 
 ---
 

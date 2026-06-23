@@ -1,7 +1,8 @@
 {
-  "name": "migo-backend",
+  "name": "passpay-backend",
   "version": "1.0.0",
   "main": "index.js",
+  "description": "Passpay — orquestación de pagos sobre Stellar (Transferencias 3.0 + anchor SEP-24)",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
@@ -11,7 +12,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",

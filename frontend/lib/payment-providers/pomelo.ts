@@ -14,8 +14,8 @@ export async function createPomeloPayment(params: {
     body: JSON.stringify({
       amount: params.amount,
       currency: params.currency,
-      description: `Migo Split ${params.splitId}`,
-      callback_url: `https://api.migo.app/webhooks/pomelo/${params.splitId}`
+      description: `Passpay Split ${params.splitId}`,
+      callback_url: `https://api.passpay.app/webhooks/pomelo/${params.splitId}`
     })
   });
   

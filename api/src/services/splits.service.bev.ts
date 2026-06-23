@@ -245,7 +245,7 @@ export async function getPaymentIntent(splitId: string): Promise<PaymentIntent> 
     settlementAsset: split.settlementAsset,
     status: intentStatus,
     expiresAt: split.expiresAt,
-    memo: `MIGO_SPLIT_${split.id}`,
+    memo: `PP-${split.id.slice(0, 8)}`,
   };
 }
 

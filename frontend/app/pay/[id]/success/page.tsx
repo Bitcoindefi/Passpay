@@ -101,7 +101,7 @@ export default function PaymentSuccessPage() {
       </motion.div>
 
       <p className="text-xs text-slate-500 mt-12">
-        Powered by Stellar · Migo Protocol
+        Powered by Stellar · Passpay
       </p>
     </div>
   );

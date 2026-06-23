@@ -53,10 +53,10 @@ export default function Home() {
         className="mb-16"
       >
         <Image
-          src="/migo-logo.png"
-          alt="Migo"
+          src="/passpay-logo.svg"
+          alt="Passpay"
           width={300}
-          height={120}
+          height={96}
           priority
           className="w-auto h-auto max-w-sm drop-shadow-lg"
         />
@@ -76,14 +76,14 @@ export default function Home() {
           <Link href="/pay/demo-123">
             <Card className={`h-full border-2 transition-all cursor-pointer overflow-hidden group ${
               isDark
-                ? 'bg-slate-800/50 border-slate-700 hover:border-[#00D9FF] hover:shadow-xl hover:shadow-[#00D9FF]/20'
-                : 'bg-white border-gray-200 hover:border-[#00D9FF] hover:shadow-xl'
+                ? 'bg-slate-800/50 border-slate-700 hover:border-[#5B4BF5] hover:shadow-xl hover:shadow-[#5B4BF5]/20'
+                : 'bg-white border-gray-200 hover:border-[#5B4BF5] hover:shadow-xl'
             }`}>
               <CardContent className="p-12 flex flex-col items-center justify-center h-full">
                 <motion.div
                   whileHover={{ rotate: 360 }}
                   transition={{ duration: 0.5 }}
-                  className="w-24 h-24 bg-gradient-to-br from-[#00D9FF] to-[#00B8DD] rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-[#00D9FF]/30"
+                  className="w-24 h-24 bg-gradient-to-br from-[#5B4BF5] to-[#3D2FD6] rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-[#5B4BF5]/30"
                 >
                   <User className="w-12 h-12 text-white" />
                 </motion.div>
@@ -106,14 +106,14 @@ export default function Home() {
           <Link href="/pos">
             <Card className={`h-full border-2 transition-all cursor-pointer overflow-hidden group ${
               isDark
-                ? 'bg-slate-800/50 border-slate-700 hover:border-[#006B7D] hover:shadow-xl hover:shadow-[#006B7D]/20'
-                : 'bg-white border-gray-200 hover:border-[#006B7D] hover:shadow-xl'
+                ? 'bg-slate-800/50 border-slate-700 hover:border-[#16E0A3] hover:shadow-xl hover:shadow-[#16E0A3]/20'
+                : 'bg-white border-gray-200 hover:border-[#16E0A3] hover:shadow-xl'
             }`}>
               <CardContent className="p-12 flex flex-col items-center justify-center h-full">
                 <motion.div
                   whileHover={{ rotate: -360 }}
                   transition={{ duration: 0.5 }}
-                  className="w-24 h-24 bg-gradient-to-br from-[#006B7D] to-[#005563] rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-[#006B7D]/30"
+                  className="w-24 h-24 bg-gradient-to-br from-[#16E0A3] to-[#0FB985] rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-[#16E0A3]/30"
                 >
                   <Store className="w-12 h-12 text-white" />
                 </motion.div>
@@ -131,10 +131,24 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="text-center mt-16"
+        className="text-center mt-12"
       >
-        <p className={`text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-          Powered by Stellar · Soroban Smart Contracts
+        <div className="flex items-center justify-center gap-5 mb-4 flex-wrap">
+          <Link
+            href="/cobrar-ars"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[#16E0A3] hover:text-[#5B4BF5] transition-colors"
+          >
+            🇦🇷 Cobrar en ARS · Transferencias 3.0
+          </Link>
+          <Link
+            href="/ramp"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[#8B7CF8] hover:text-[#16E0A3] transition-colors"
+          >
+            💵 Rampa fiat ↔ dólar on-chain
+          </Link>
+        </div>
+        <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+          Transferencias 3.0 + Anchor SEP-24 · Liquidación en Stellar
         </p>
       </motion.div>
     </div>

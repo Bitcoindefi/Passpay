@@ -17,7 +17,7 @@ export async function createMPPayment(params: {
   const result = await payment.create({
     body: {
       transaction_amount: params.amount,
-      description: `Migo Split - ${params.description}`,
+      description: `Passpay Split - ${params.description}`,
       payment_method_id: 'pix', // O 'credit_card', 'debit_card'
       payer: {
         email: 'user@example.com'
@@ -26,7 +26,7 @@ export async function createMPPayment(params: {
         split_id: params.splitId,
         participant_id: params.participantId
       },
-      notification_url: `https://api.migo.app/webhooks/mp/${params.splitId}`
+      notification_url: `https://api.passpay.app/webhooks/mp/${params.splitId}`
     }
   });
   
