@@ -6,14 +6,15 @@ export const STELLAR_WALLETS = [
     name: 'Freighter',
     icon: '🔷',
     type: 'extension',
-    detectFunction: () => window.freighter !== undefined,
+    detectFunction: () => (window as any).freighter !== undefined,
     connectFunction: async () => {
-      const { isConnected, getPublicKey } = await import('@stellar/freighter-api');
-      if (await isConnected()) {
-        return await getPublicKey();
-      }
-      return null;
+    const freighter = await import('@stellar/freighter-api');
+    if (await freighter.isConnected()) {
+      const result = await freighter.requestAccess();
+      return result;
     }
+    return null;
+}
   },
   {
     id: 'lobstr',
@@ -23,26 +24,26 @@ export const STELLAR_WALLETS = [
     deepLink: 'lobstr://',
     detectFunction: () => /Lobstr/i.test(navigator.userAgent),
   },
-  {
+{
     id: 'albedo',
     name: 'Albedo',
     icon: '🌟',
     type: 'web',
     url: 'https://albedo.link',
-    connectFunction: async () => {
-      const albedo = await import('@albedo-link/intent');
-      const result = await albedo.publicKey();
-      return result.pubkey;
-    }
+    // connectFunction: async () => {
+    //   const albedo = await import('@albedo-link/intent');
+    //   const result = await albedo.publicKey();
+    //   return result.pubkey;
+    // }
   },
   {
     id: 'xbull',
     name: 'xBull',
     icon: '🐂',
     type: 'extension',
-    detectFunction: () => window.xBullSDK !== undefined,
+    detectFunction: () => (window as any).xBullSDK !== undefined,
     connectFunction: async () => {
-      const xbull = window.xBullSDK;
+      const xbull = (window as any).xBullSDK;
       await xbull.connect();
       return xbull.getPublicKey();
     }
