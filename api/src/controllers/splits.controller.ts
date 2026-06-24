@@ -101,7 +101,7 @@ export async function getSplitSummaryController(req: Request, res: Response) {
     const id = validateId(req.params.id);
     const split = await getSplitByIdService(id);
 
-    const payments = getPaymentsBySplit(id);
+    const payments = await getPaymentsBySplit(id);
     const paid = payments.reduce(
       (sum, p) => sum + p.convertedAmount,
       0

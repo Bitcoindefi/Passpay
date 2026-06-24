@@ -54,7 +54,7 @@ export async function getSplitByIdService(id: string): Promise<Split> {
   if (split.status === "SETTLED") {
     return split;
 }
-  const payments = getPaymentsBySplit(id);
+  const payments = await getPaymentsBySplit(id);
 
   const totalPaid = payments.reduce(
     (sum: number, p: Payment) => sum + p.convertedAmount,
@@ -85,7 +85,7 @@ export async function getParticipantsStatus(splitId: string) {
     throw new Error("Participants status only applies to FIXED mode");
   }
 
-  const payments = getPaymentsBySplit(splitId);
+  const payments = await getPaymentsBySplit(splitId);
 
   return split.participants?.map((participant) => {
     const assignedAmount =
@@ -217,7 +217,7 @@ function validateSplit(input: SplitInput) {
 export async function getPaymentIntent(splitId: string): Promise<PaymentIntent> {
   const split = await getSplitByIdService(splitId);
 
-  const payments = getPaymentsBySplit(splitId);
+  const payments = await getPaymentsBySplit(splitId);
 
   const totalPaid = payments.reduce(
     (sum: number, p: Payment) => sum + p.convertedAmount,

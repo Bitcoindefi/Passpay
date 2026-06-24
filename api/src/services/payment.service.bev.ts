@@ -3,6 +3,7 @@ import { Payment, PaymentMethod } from "../types/payment.types";
 import { getSplitByIdService, releaseSettlement } from "./splits.service";
 import { convertToSettlement } from "./conversion.service";
 import { sendWebhook } from "./webhook.service"; //opcional, para notificar cambios a un sistema externo
+import { Split, SplitInput, Participant } from "../types/split.types";
 
 
 const payments: Payment[] = [];
@@ -35,8 +36,7 @@ export async function registerPaymentService(
     throw new Error("Split expired");}
 
   // simular conversion
-const { conversionRate, convertedAmount } =
-  convertToSettlement(originalAmount, originalAsset, split.settlementAsset);
+const { conversionRate, convertedAmount }  = await convertToSettlement(originalAmount, originalAsset, split.settlementAsset);
 
 const totalPaidSoFar = payments
   .filter((p: Payment) => p.splitId === splitId)
@@ -51,11 +51,11 @@ if (convertedAmount > remainingGlobal) {
   throw new Error("Payment exceeds remaining split amount");
 }
 
-  // FIXED: MODO LOGICO
+// FIXED: MODO LOGICO
 if (split.mode === "FIXED") {
-  const participant = split.participants?.find(
-    (p) => p.id === payerId
-  );
+  const participant = (split.participants ?? []).find(
+    (p: Participant) => p.id === payerId
+  ) as Participant | undefined;
 
   if (!participant) {
     throw new Error("Payer not part of this split");
@@ -76,6 +76,8 @@ if (split.mode === "FIXED") {
     throw new Error("Payment exceeds user's assigned share");
   }
 }
+  
+
 
   // Crear payment
 const payment: Payment = {
