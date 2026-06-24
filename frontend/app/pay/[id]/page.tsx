@@ -20,7 +20,7 @@ const WALLETS = [
   { 
     name: 'Freighter', 
     icon: '🔷',
-    available: typeof window !== 'undefined' && window.freighter !== undefined,
+    available: typeof window !== 'undefined' && (window as any).freighter !== undefined,
     action: 'freighter'
   },
   { 
@@ -32,13 +32,13 @@ const WALLETS = [
   { 
     name: 'Albedo', 
     icon: '🌟',
-    available: true,
+    available: typeof window !== 'undefined' && (window as any).albedo !== undefined,
     action: 'albedo'
   },
   { 
     name: 'xBull', 
     icon: '🐂',
-    available: typeof window !== 'undefined' && window.xBullSDK !== undefined,
+    available: typeof window !== 'undefined' && (window as any).xBullSDK !== undefined,
     action: 'xbull'
   },
 ];
