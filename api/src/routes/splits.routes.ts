@@ -12,6 +12,7 @@ import { registerPayment } from "../controllers/payments.controller";
 import { generateSplitQR } from "../controllers/qr.controller";
 import { getPaymentsController } from "../controllers/payments.controller";
 import { getSplitSummaryController } from "../controllers/splits.controller";
+import { buildPaymentTxController, submitPaymentTxController } from "../controllers/stellar-tx.controller";
 
 const router = Router();
 
@@ -25,6 +26,8 @@ router.post("/:id/release", releaseSettlementController);
 router.get("/:id/intent", getPaymentIntentController);
 router.post("/:id/cancel", cancelSplitController);
 router.get("/:id/summary", getSplitSummaryController);
+router.get("/:id/tx", buildPaymentTxController);
+router.post("/:id/tx/submit", submitPaymentTxController);
 
 
 export default router;

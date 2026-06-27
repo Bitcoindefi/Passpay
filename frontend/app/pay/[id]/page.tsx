@@ -69,24 +69,34 @@ export default function PaySplitPage({ params }: { params: Promise<{ id: string 
 
 const handlePayWithWallet = async () => {
   StellarWalletsKit.init({ 
-  modules: defaultModules(),
-  theme: SwkAppDarkTheme
-});
+    modules: defaultModules(),
+    theme: SwkAppDarkTheme
+  });
   
   try {
     const { address } = await StellarWalletsKit.authModal();
-    const data = await api.payments.register(split.id, {
-      payerId: address,
-      method: "STELLAR",
-      originalAsset: selectedCurrency,
-      originalAmount: shareAmount,
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const txRes = await fetch(
+      `${API_URL}/splits/${split.id}/tx?payerAddress=${address}&amount=${shareAmount.toFixed(7)}&asset=${selectedCurrency}`
+    );
+    const { xdr } = await txRes.json();
+
+    const { signedTxXdr } = await StellarWalletsKit.signTransaction(xdr, {
+      networkPassphrase: 'Test SDF Network ; September 2015',
+      address,
     });
-    router.push(`/pay/${split.id}/success?txHash=${data.stellarTxHash || ''}`);
+
+    const { Transaction, Networks: StellarNetworks, Horizon } = await import('@stellar/stellar-sdk');
+    const server = new Horizon.Server('https://horizon-testnet.stellar.org');
+    const signedTx = new Transaction(signedTxXdr, StellarNetworks.TESTNET);
+    const result = await server.submitTransaction(signedTx);
+
+    router.push(`/pay/${split.id}/success?txHash=${result.hash}`);
   } catch (err: any) {
     alert('Error al registrar el pago: ' + err.message);
   }
 };
-  
 
 
   return (
