@@ -7,6 +7,7 @@ import anchorRouter from "./routes/anchor.routes";
 import transferencias3Router from "./routes/transferencias3.routes";
 import coelsaRouter from "./routes/coelsa.routes";
 import abroadRouter from "./routes/abroad.routes";
+import blindpayRouter from "./routes/blindpay.routes";
 
 
 
@@ -24,6 +25,7 @@ export function createApp() {
   app.use("/transferencias3", transferencias3Router);
   app.use("/webhooks", coelsaRouter);
   app.use("/abroad", abroadRouter);
+  app.use("/blindpay", blindpayRouter);
 
   //
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
