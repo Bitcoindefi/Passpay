@@ -7,7 +7,7 @@
 
 import { Request, Response } from "express";
 import crypto from "crypto";
-import { simulateInboundPayment } from "../services/transferencias3.service";
+import { sendSettlementPayment } from "../services/stellar.service";
 
 // Valida la firma HMAC-SHA256 que Coelsa envía en el header x-coelsa-signature
 function validateCoelsaSignature(
@@ -56,14 +56,13 @@ export async function coelsaWebhookController(req: Request, res: Response) {
   }
 
   try {
-    const receipt = await simulateInboundPayment({
-      amountArs: Number(amountArs),
-      reference,
-      payer: payer ?? "coelsa-webhook",
-    });
+    const txHash = await sendSettlementPayment(
+  String(amountArs),
+  { network: "stellar", type: "native", code: "XLM" }
+);
+console.log(`[Coelsa] Pago acreditado: ${amountArs} ARS → ${txHash}`);
+return res.status(200).json({ received: true, txHash });
 
-    console.log(`[Coelsa] Pago acreditado: ${amountArs} ARS → ${receipt.settlement.stellarTxHash}`);
-    return res.status(200).json({ received: true, receipt });
   } catch (err: any) {
     console.error(`[Coelsa] Error procesando pago: ${err.message}`);
     return res.status(500).json({ error: err.message });
