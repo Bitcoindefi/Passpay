@@ -118,7 +118,7 @@ export default function Home() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Link href="/pos" className="block h-full">
+            <Link href="/dashboard" className="block h-full">
               <div
                 className={`group h-full rounded-3xl border p-8 transition-all ${
                   isDark
@@ -129,12 +129,12 @@ export default function Home() {
                 <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#5B4BF5] to-[#3D2FD6] shadow-lg shadow-[#5B4BF5]/30">
                   <Store className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold">Negocio · POS</h3>
+                <h3 className="text-2xl font-bold">Mi negocio</h3>
                 <p className={`mt-1 text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
-                  Cobrá y dividí pagos en el punto de venta
+                  Panel: balance, cobros y movimientos
                 </p>
                 <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[#8B7CF8]">
-                  Abrir POS <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  Abrir panel <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </span>
               </div>
             </Link>
