@@ -136,39 +136,52 @@ export const api = {
         };
       }>("/transferencias3/simulate-payment", body),
   },
-};
 
-  // ── BlindPay (off-ramp USDC → ARS/BRL/COP) ──────────────
+  // ── BlindPay (off-ramp USDC/USDB → ARS/BRL/COP) ─────────
+  // La moneda fiat de destino la define el rail del bank account (transfers_bitso → ARS).
   blindpay: {
     customers: () =>
-      get<{ data: Array<{ id: string; name: string; email: string }> }>(
+      get<Array<{ id: string; first_name: string; last_name: string; email: string; kyc_status: string }>>(
         "/blindpay/customers"
       ),
 
     bankAccounts: (customerId: string) =>
-      get<{ data: Array<{ id: string; bank_name: string; account_number: string; currency: string }> }>(
+      get<Array<{ id: string; type: string; transfers_type: string; transfers_account: string; beneficiary_name: string; status: string }>>(
         `/blindpay/customers/${customerId}/bank-accounts`
       ),
 
+    // Adjunta una cuenta ARS (CBU/CVU/ALIAS) a un receiver
+    createBankAccount: (
+      customerId: string,
+      body: { transfers_type: "CBU" | "CVU" | "ALIAS"; transfers_account: string; beneficiary_name: string; name?: string }
+    ) =>
+      post<{ id: string; status: string; transfers_account: string }>(
+        `/blindpay/customers/${customerId}/bank-accounts`,
+        body
+      ),
+
+    // request_amount en MINOR UNITS (centavos). currency_type: "sender" (stablecoin) | "receiver" (ARS)
     quote: (body: {
-      amount: number;
-      target_currency: "ARS" | "BRL" | "COP";
-      receiver_id: string;
       bank_account_id: string;
+      request_amount: number;
+      currency_type?: "sender" | "receiver";
+      cover_fees?: boolean;
     }) =>
       post<{
         id: string;
-        source_currency: string;
-        target_currency: string;
-        source_amount: number;
-        target_amount: number;
-        exchange_rate: number;
-        expires_at: string;
-        fee?: number;
-      }>("/blindpay/quote", { ...body, source_currency: "USDC" }),
+        expires_at: number;
+        sender_amount: number;      // centavos del stablecoin
+        receiver_amount: number;    // centavos de ARS
+        blindpay_quotation: number; // tasa ARS/USD
+        commercial_quotation: number;
+        flat_fee: number;
+        partner_fee_amount: number;
+        contract: { address: string; amount: string; network: { name: string; chainId: number } };
+      }>("/blindpay/quote", body),
 
     authorize: (body: { quote_id: string; sender_wallet_address: string }) =>
-      post<{ xdr: string; transaction_hash?: string; unsigned_xdr?: string }>(
+      // BlindPay devuelve el XDR sin firmar en el campo (mal nombrado) transactionHash
+      post<{ transactionHash?: string; xdr?: string; unsigned_xdr?: string }>(
         "/blindpay/authorize",
         body
       ),
@@ -178,14 +191,7 @@ export const api = {
       signed_transaction: string;
       sender_wallet_address: string;
     }) =>
-      post<{
-        id: string;
-        status: string;
-        source_amount: number;
-        target_amount: number;
-        target_currency: string;
-        created_at: string;
-      }>("/blindpay/payout", body),
+      post<{ id: string; status: string; created_at: string }>("/blindpay/payout", body),
   },
 };
 

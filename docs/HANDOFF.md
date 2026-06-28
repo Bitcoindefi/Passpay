@@ -68,6 +68,40 @@ cd frontend && npm install && npm run dev   # puerto 3000
 
 ---
 
+## BlindPay off-ramp (USDC → ARS) — VALIDADO end-to-end ✅
+
+El off-ramp por BlindPay está completo y probado contra el sandbox real (`in_fhAIC22j913R`):
+crear cuenta ARS → quote → authorize (XDR) → firmar wallet → payout.
+
+**Endpoints backend** (`/blindpay/*`):
+| Método | Ruta | Qué hace |
+|---|---|---|
+| GET | `/blindpay/customers` | lista receivers (clientes KYC) |
+| GET | `/blindpay/customers/:id/bank-accounts` | lista cuentas (⚠️ roto en sandbox, ver abajo) |
+| POST | `/blindpay/customers/:id/bank-accounts` | crea cuenta ARS (`transfers_type` CBU/CVU/ALIAS) |
+| POST | `/blindpay/quote` | cotiza (`bank_account_id` + `request_amount` en **centavos**) |
+| POST | `/blindpay/authorize` | devuelve XDR sin firmar (campo `transactionHash`) |
+| POST | `/blindpay/payout` | ejecuta payout con la tx firmada |
+| POST | `/blindpay/receivers` | crea receiver (requiere `tos_id`) |
+| POST | `/blindpay/tos` | inicia ToS, devuelve URL hosted para aceptar |
+
+**Seed rápido para la demo:**
+```bash
+cd api && NODE_TLS_REJECT_UNAUTHORIZED=0 node scripts/seed-blindpay-ar.mjs
+# adjunta una cuenta ARS a un receiver aprobado y corre un quote real → imprime los IDs
+```
+
+**Quirks del sandbox de BlindPay (importante):**
+1. **La moneda fiat NO se elige con un campo** — la define el rail del bank account: `transfers_bitso` → ARS. Por eso el quote solo necesita `bank_account_id`, no hay `target_currency`.
+2. **`request_amount` va en centavos** (5000 = 50.00). Floats se rechazan.
+3. **Crear un receiver KYC nuevo NO es 100% automatizable**: requiere aceptar los Términos en una página hosted (`POST /blindpay/tos` → abrir la `url` → aceptar → se genera el `tos_id`). Para la demo usamos los 10 receivers pre-aprobados del sandbox.
+4. **`GET .../bank-accounts` devuelve 502** para los receivers pre-cargados porque BlindPay sembró cuentas BR con CPF inválido y su propio listado se rompe al validarlas. **No es nuestro bug.** La página `/offramp` lo maneja: si el listado falla, deja crear una cuenta ARS nueva y usa el `id` que devuelve el POST directamente.
+5. **Sandbox = `network=stellar_testnet`, `token=USDB`** (no USDC). En prod: `stellar` + `USDC` (cambiar `BLINDPAY_NETWORK`/`BLINDPAY_TOKEN`).
+
+**Pendiente para Romi/Bella:** crear un receiver argentino *real* (no los US pre-cargados) corriendo el flujo de ToS una vez con un humano, y persistir los payouts en Prisma.
+
+---
+
 ## Tareas para Romi (Backend)
 
 ### 1. Conectar Anclap en producción / sandbox

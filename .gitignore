@@ -1,2 +1,6 @@
 .env.local
 .env
+_env
+api/.env
+frontend/.env.local
+*.env
