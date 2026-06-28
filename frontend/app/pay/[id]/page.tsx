@@ -113,7 +113,18 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
     const signedTx = new Transaction(signedTxXdr, StellarNetworks.TESTNET);
     const result = await server.submitTransaction(signedTx);
 
+        // Registrar pago en el backend
+    await api.payments.register(split.id, {
+      payerId: address,
+      method: "STELLAR",
+      originalAsset: selectedCurrency,
+      originalAmount: shareAmount,
+    });
+
+
     router.push(`/pay/${split.id}/success?txHash=${result.hash}`);
+    
+
   } catch (err: any) {
     alert('Error al registrar el pago: ' + err.message);
   }
