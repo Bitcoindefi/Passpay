@@ -129,7 +129,27 @@ El **dashboard** muestra ese saldo (en USDC, con su equivalente en ARS) y la lis
 | Persistencia (splits, payouts) | 🔴 Supabase **caída/inalcanzable** desde la red actual (`db.zoobnfqtpavazeukytcw.supabase.co:5432`). Hay que despausar/reconectar la DB o cambiar `DATABASE_URL`. |
 | Firma de wallet (off-ramp / pay) | 🟡 Necesita Freighter/xBull con fondos; no se automatiza en el video |
 
-**Acción para el equipo:** revisar el proyecto de Supabase (los free-tier se pausan por inactividad). Mientras esté caída, el POS y la persistencia de payouts no graban en DB, pero el resto de los flujos andan.
+### ⚠️ Sobre la base de datos (leer)
+
+Ahora mismo la DB **no responde**:
+
+```
+Can't reach database server at `db.zoobnfqtpavazeukytcw.supabase.co:5432`
+```
+
+**Qué significa:** el backend usa Postgres (Supabase) vía Prisma para guardar los splits y los payouts. Esa instancia está caída o inalcanzable desde la red del equipo. Causa más común: **los proyectos free de Supabase se pausan solos por inactividad** (también puede ser que la red bloquee el puerto 5432).
+
+**Qué SÍ sigue andando con la DB caída:** el QR de Transferencias 3.0, la liquidación on-chain, el quote de BlindPay y el anchor SEP-24 (ninguno depende de la DB).
+**Qué NO:** crear un split en el POS y persistir payouts (todo lo que hace `prisma.*.create`). Por eso en el video la creación del split va stubbeada.
+
+**Cómo arreglarlo (cualquiera del equipo con acceso):**
+1. Entrar a [app.supabase.com](https://app.supabase.com) → proyecto Passpay.
+2. Si dice **"Paused"**, tocar **Restore / Resume** y esperar 1–2 min.
+3. Verificar la connection string (Project Settings → Database) y que coincida con `DATABASE_URL` en `api/.env` (y en las env de Vercel).
+4. Probar local: `curl -X POST http://localhost:3001/splits -H "Content-Type: application/json" -d '{"totalAmount":1000,"mode":"OPEN_POOL","settlementAsset":{"network":"stellar","type":"native","code":"XLM"}}'` → debe devolver un `id`, no un error de conexión.
+5. Si sigue sin reachear desde esta máquina (proxy/firewall bloqueando 5432), usar el **connection pooler de Supabase** (puerto 6543, modo `transaction`) en el `DATABASE_URL`.
+
+Una vez arriba, el POS y la persistencia de payouts graban solos — no hay que tocar código.
 
 ---
 
