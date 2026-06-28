@@ -128,9 +128,46 @@ async function scrollTo(page, y) {
     await cap(page, "1 · ✓ Acreditado + liquidación on-chain", "Coelsa ID + hash en Stellar");
     await sleep(page, 3300);
 
+    // ───────── 2 · Cobro compartido — POS / Split ─────────
+    // La DB (Supabase) no es alcanzable desde esta red, así que stubeamos la creación
+    // del split: el cálculo del split y el QR son frontend real, solo la persistencia va mock.
+    await context.route("**/splits**", (route) => {
+      const req = route.request();
+      const p = req.url().split("?")[0];
+      if (req.method() === "POST" && /\/splits$/.test(p)) {
+        return route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify({ id: "pp-demo-split-001", status: "PENDING" }) });
+      }
+      if (req.method() === "GET" && /\/splits\/[^/]+$/.test(p)) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ id: "pp-demo-split-001", status: "PENDING", totalAmount: 20000, settlementAsset: { code: "XLM" } }) });
+      }
+      return route.continue();
+    });
+
+    await page.goto(BASE + "/pos", { waitUntil: "networkidle" });
+    await cap(page, "2 · Cobro compartido — POS / Split", "Dividir una cuenta entre varias personas");
+    await sleep(page, 1400);
+
+    const posAmount = page.locator('input[inputmode="decimal"]');
+    await posAmount.click();
+    for (const ch of "20000") { await posAmount.type(ch, { delay: 90 }); }
+    await sleep(page, 900);
+
+    // subir a 4 personas (+2 desde 2)
+    const plus = page.locator('button:has-text("+")').first();
+    await plus.click().catch(() => {}); await sleep(page, 450);
+    await plus.click().catch(() => {}); await sleep(page, 700);
+
+    await cap(page, "2 · Split automático", "Monto ÷ personas — cada uno paga su parte, en su moneda");
+    await sleep(page, 1700);
+
+    await safeClickByText(page, /Generar QR/i);
+    await page.locator("canvas").first().waitFor({ state: "visible", timeout: 15000 }).catch(() => {});
+    await cap(page, "2 · QR del split listo", "Cada cliente escanea y paga su parte → liquida en Stellar");
+    await sleep(page, 3500);
+
     // ───────── 4 · Off-ramp USDC → ARS (BlindPay) ─────────
     await page.goto(BASE + "/offramp", { waitUntil: "networkidle" });
-    await cap(page, "2 · Off-ramp USDC → ARS — BlindPay", "Retirar dólares on-chain a una cuenta en pesos");
+    await cap(page, "3 · Off-ramp USDC → ARS — BlindPay", "Retirar dólares on-chain a una cuenta en pesos");
     await page.waitForFunction(() => {
       const sel = document.querySelector("select");
       return sel && !/Cargando/i.test(sel.options[sel.selectedIndex]?.text || "Cargando");
@@ -139,7 +176,7 @@ async function scrollTo(page, y) {
 
     const cbuInput = page.locator('input[placeholder="22 dígitos"]');
     if (await cbuInput.count()) {
-      await cap(page, "2 · Cuenta ARS de destino (CBU)", "Rail transfers_bitso → ARS");
+      await cap(page, "3 · Cuenta ARS de destino (CBU)", "Rail transfers_bitso → ARS");
       await cbuInput.first().click();
       await cbuInput.first().fill(VALID_CBU);
       await sleep(page, 1100);
@@ -147,22 +184,22 @@ async function scrollTo(page, y) {
       await sleep(page, 2800);
     }
 
-    await cap(page, "2 · Cotizando contra BlindPay (en vivo)", "request_amount en centavos · moneda por el rail");
+    await cap(page, "3 · Cotizando contra BlindPay (en vivo)", "request_amount en centavos · moneda por el rail");
     const cotizar = page.getByRole("button", { name: /Cotizar/i });
     if (await cotizar.count()) {
       await cotizar.first().click();
       await page.getByText(/Confirmá y firmá/i).waitFor({ state: "visible", timeout: 25000 }).catch(() => {});
-      await cap(page, "2 · ✓ Quote real USDC → ARS", "Próximo paso: firmar con la wallet (Freighter/xBull)");
+      await cap(page, "3 · ✓ Quote real USDC → ARS", "Próximo paso: firmar con la wallet (Freighter/xBull)");
       await sleep(page, 3800);
     } else {
-      await cap(page, "2 · Off-ramp listo", "Backend BlindPay conectado en vivo");
+      await cap(page, "3 · Off-ramp listo", "Backend BlindPay conectado en vivo");
       await sleep(page, 2400);
     }
 
     // ───────── 5 · Rampa anchor SEP-24 ─────────
     await page.goto(BASE + "/ramp", { waitUntil: "networkidle" });
     await sleep(page, 2400);
-    await cap(page, "3 · Rampa dólar — Anchor SEP-24", "Descubrimiento SEP-1 · auth SEP-10 · on/off-ramp SEP-24");
+    await cap(page, "4 · Rampa dólar — Anchor SEP-24", "Descubrimiento SEP-1 · auth SEP-10 · on/off-ramp SEP-24");
     await sleep(page, 3600);
 
     // ───────── cierre ─────────

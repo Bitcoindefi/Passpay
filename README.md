@@ -6,6 +6,8 @@ Passpay es la capa de orquestación de pagos que conecta **Transferencias 3.0** 
 
 > Construido para el track de Integración de Stellar / PULSO Argentina.
 
+> 🧭 **¿Nuevo en el repo?** Leé [docs/FLUJOS.md](docs/FLUJOS.md) — explica los 4 flujos paso a paso (de lo conceptual a lo técnico). Demo en video: [docs/demo/passpay-flows.webm](docs/demo/passpay-flows.webm).
+
 ---
 
 ## El problema
