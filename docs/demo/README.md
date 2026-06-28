@@ -1,14 +1,17 @@
 # Demo en video — Passpay
 
 `passpay-flows.webm` es una grabación automatizada (Playwright) de los flujos reales de Passpay
-corriendo contra el backend en vivo. ~50 s, con subtítulos.
+corriendo contra el backend en vivo. ~1 min, con subtítulos y portada de intro.
 
 ## Qué muestra
-1. **Cobro en ARS (Transferencias 3.0)** — monto → QR interoperable EMVCo real → simular pago del
+0. **Portada** — intro de marca (3.5 s) antepuesta con ffmpeg.
+1. **Home + panel del comercio** — home rediseñado (paleta indigo→teal, íconos del set) y el
+   dashboard: balance USDC ↔ ARS y timeline de movimientos.
+2. **Cobro en ARS (Transferencias 3.0)** — monto → QR interoperable EMVCo real → simular pago del
    cliente → acreditación Coelsa + liquidación on-chain en Stellar. (Flujo completo end-to-end.)
-2. **Off-ramp USDC → ARS (BlindPay)** — elegir cliente → crear cuenta ARS (CBU) → **quote real**
+3. **Off-ramp USDC → ARS (BlindPay)** — elegir cliente → crear cuenta ARS (CBU) → **quote real**
    contra el sandbox de BlindPay (50 USDC → ~76.300 ARS). Se graba hasta el paso de firma.
-3. **Rampa dólar (Anchor SEP-24)** — anchor descubierto vía SEP-1, listo para on/off-ramp.
+4. **Rampa dólar (Anchor SEP-24)** — anchor descubierto vía SEP-1, listo para on/off-ramp.
 
 > Los flujos que firman con wallet (`/offramp`, `/pay`) se graban hasta el paso de la firma: el
 > popup de Freighter/xBull es externo al navegador y no se automatiza.
@@ -25,6 +28,11 @@ npm i -D playwright && npx playwright install chromium
 # 3. grabar
 node docs/demo/record-demo.js
 # salida: docs/demo/videos/*.webm
+
+# 4. anteponer la portada de intro (3.5 s) y recomprimir
+ffmpeg -loop 1 -t 3.5 -i frontend/public/passpay-cover.png -i docs/demo/videos/<rec>.webm \
+  -filter_complex "[0:v]scale=480:900:force_original_aspect_ratio=decrease,pad=480:900:(ow-iw)/2:(oh-ih)/2:color=0x0B0E14,setsar=1,format=yuv420p,fade=t=in:st=0:d=0.4,fade=t=out:st=3.0:d=0.5[intro];[1:v]scale=480:900,setsar=1,format=yuv420p[body];[intro][body]concat=n=2:v=1:a=0[v]" \
+  -map "[v]" -c:v libvpx-vp9 -crf 37 -b:v 0 -an docs/demo/passpay-flows.webm
 ```
 
 Variables opcionales: `DEMO_BASE_URL` (default `http://localhost:3000`), `CHROMIUM_PATH`
