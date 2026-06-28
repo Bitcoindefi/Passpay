@@ -77,7 +77,24 @@ export async function getRampTransactionController(req: Request, res: Response) 
   }
 
   try {
-    const tx = await getRampTransaction(parsed.data.id);
+    const MAX_RETRIES = 3;
+    const BACKOFF_MS = [1000, 2000, 4000];
+
+    let tx = await getRampTransaction(parsed.data.id);
+
+    for (let attempt = 0; attempt < MAX_RETRIES && tx.status === "error"; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, BACKOFF_MS[attempt]));
+      tx = await getRampTransaction(parsed.data.id);
+    }
+
+    if (tx.status === "error") {
+      return res.status(502).json({
+        error: "Anchor reported error after 3 retries",
+        lastStatus: "error",
+        message: tx.message ?? undefined,
+      });
+    }
+
     res.json(tx);
   } catch (err: any) {
     res.status(502).json({ error: err.message });
