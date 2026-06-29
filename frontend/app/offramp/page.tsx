@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, CheckCircle, Wallet, DollarSign, RefreshCw, Plus, Building2, Globe } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Wallet, DollarSign, RefreshCw, Plus, Building2 } from 'lucide-react';
 import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk';
 import { defaultModules } from '@creit-tech/stellar-wallets-kit/modules/utils';
 import { SwkAppDarkTheme } from '@creit-tech/stellar-wallets-kit/types';
@@ -17,6 +17,15 @@ const NETWORK_PASSPHRASE =
     : 'Test SDF Network ; September 2015';
 
 type Step = 'setup' | 'quote' | 'done';
+type Country = 'AR' | 'BR' | 'CO';
+
+// Destinos de off-ramp. AR (BlindPay) está activo; BR/CO (Abroad) quedan
+// como roadmap hasta cerrar el onboarding de partner de Abroad.
+const DESTINATIONS: { code: Country; flag: string; currency: string; provider: string; enabled: boolean }[] = [
+  { code: 'AR', flag: '🇦🇷', currency: 'ARS', provider: 'BlindPay', enabled: true },
+  { code: 'BR', flag: '🇧🇷', currency: 'BRL', provider: 'Abroad', enabled: false },
+  { code: 'CO', flag: '🇨🇴', currency: 'COP', provider: 'Abroad', enabled: false },
+];
 
 interface Customer { id: string; first_name: string; last_name: string; email: string; kyc_status: string }
 interface BankAccount { id: string; type: string; transfers_type: string; transfers_account: string; beneficiary_name: string; status: string }
@@ -28,6 +37,7 @@ interface Quote {
 
 export default function OfframpPage() {
   const [step, setStep] = useState<Step>('setup');
+  const [country, setCountry] = useState<Country>('AR');
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerId, setCustomerId] = useState('');
@@ -210,18 +220,38 @@ export default function OfframpPage() {
             <motion.div key="setup" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
               <h2 className="text-xl font-bold text-center mb-2">Configurá el retiro</h2>
 
-              {/* Abroad (Brasil/Colombia) — próximamente */}
-              <button
-                type="button"
-                disabled
-                title="Abroad · Brasil/Colombia · próximamente"
-                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-700 bg-slate-800/30 opacity-60 cursor-not-allowed"
-              >
-                <span className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                  <Globe className="w-4 h-4 text-[#2DD4BF] shrink-0" /> Abroad · Brasil/Colombia
-                </span>
-                <span className="text-[10px] bg-[#FFB020] text-slate-900 font-bold px-2 py-0.5 rounded-full">Próximamente</span>
-              </button>
+              {/* destino / país — AR (BlindPay) activo; BR/CO (Abroad) próximamente */}
+              <div>
+                <label className="text-xs text-slate-400 mb-1 block">Destino</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {DESTINATIONS.map((d) => {
+                    const active = country === d.code;
+                    return (
+                      <button
+                        key={d.code}
+                        type="button"
+                        onClick={() => d.enabled && setCountry(d.code)}
+                        disabled={!d.enabled}
+                        title={d.enabled ? `${d.currency} · ${d.provider}` : `${d.provider} · próximamente`}
+                        className={`relative p-3 rounded-xl border text-center transition-all ${active
+                          ? 'border-[#5B4BF5] bg-[#5B4BF5]/10'
+                          : d.enabled
+                            ? 'border-slate-600 bg-slate-800/50 hover:border-slate-500'
+                            : 'border-slate-700 bg-slate-800/30 opacity-50 cursor-not-allowed'}`}
+                      >
+                        <div className="text-lg leading-none">{d.flag}</div>
+                        <div className="text-xs font-medium mt-1">{d.currency}</div>
+                        <div className="text-[10px] text-slate-400">{d.provider}</div>
+                        {!d.enabled && (
+                          <span className="absolute -top-1.5 -right-1.5 text-[8px] bg-[#FFB020] text-slate-900 font-bold px-1.5 py-0.5 rounded-full">
+                            Pronto
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
               {/* cliente */}
               <div>
