@@ -112,7 +112,7 @@ export default function RampPage() {
           >
             <ArrowUpFromLine className="w-6 h-6 text-[#2DD4BF]" />
             <span className="font-semibold text-sm">Cobrar en {fiat}</span>
-            <span className="text-[11px] text-slate-400">Pasá tus dólares a pesos</span>
+            <span className="text-[11px] text-slate-400">Recibí {fiat} en tu cuenta</span>
           </button>
           <button
             onClick={() => setDirection('deposit')}
@@ -124,7 +124,7 @@ export default function RampPage() {
           >
             <ArrowDownToLine className="w-6 h-6 text-[#8B7CF8]" />
             <span className="font-semibold text-sm">Comprar dólares</span>
-            <span className="text-[11px] text-slate-400">Convertí tus pesos a dólares</span>
+            <span className="text-[11px] text-slate-400">Pagás con {fiat}</span>
           </button>
         </div>
 
