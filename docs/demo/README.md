@@ -6,12 +6,13 @@ corriendo contra el backend en vivo. ~1 min, con subtítulos y portada de intro.
 ## Qué muestra
 0. **Portada** — intro de marca (3.5 s) antepuesta con ffmpeg.
 1. **Home + panel del comercio** — home rediseñado (paleta indigo→teal, íconos del set) y el
-   dashboard: balance USDC ↔ ARS y timeline de movimientos.
-2. **Cobro en ARS (Transferencias 3.0)** — monto → QR interoperable EMVCo real → simular pago del
-   cliente → acreditación Coelsa + liquidación on-chain en Stellar. (Flujo completo end-to-end.)
-3. **Off-ramp USDC → ARS (BlindPay)** — elegir cliente → crear cuenta ARS (CBU) → **quote real**
-   contra el sandbox de BlindPay (50 USDC → ~76.300 ARS). Se graba hasta el paso de firma.
-4. **Rampa dólar (Anchor SEP-24)** — anchor descubierto vía SEP-1, listo para on/off-ramp.
+   dashboard: balance en dólares ↔ pesos (1 USD ≈ AR$ 1.175) y timeline de movimientos.
+2. **Cobro en pesos (QR)** — monto → QR de cobro que escanea cualquier billetera/banco → simular
+   pago del cliente → pago acreditado, guardado en dólares. (Flujo completo end-to-end.)
+3. **Pasar dólares a pesos (BlindPay)** — selector de destino (Argentina activo · Brasil/Colombia
+   pronto) → crear cuenta en pesos (CBU) → **cotización real** contra el sandbox de BlindPay
+   (50 USDC → ~76.300 ARS). Se graba hasta el paso de confirmar con la billetera.
+4. **Comprar y vender dólares** — proveedor de cambio descubierto y listo para operar.
 
 > Los flujos que firman con wallet (`/offramp`, `/pay`) se graban hasta el paso de la firma: el
 > popup de Freighter/xBull es externo al navegador y no se automatiza.
@@ -37,6 +38,9 @@ ffmpeg -loop 1 -t 3.5 -i frontend/public/passpay-cover.png -i docs/demo/videos/<
 
 Variables opcionales: `DEMO_BASE_URL` (default `http://localhost:3000`), `CHROMIUM_PATH`
 (ruta a un chromium ya instalado).
+
+> Para grabar contra el deploy en vivo (sin levantar servers locales):
+> `DEMO_BASE_URL=https://passpay-one.vercel.app node docs/demo/record-demo.js`
 
 ## Convertir a mp4 (para subir al pitch)
 El webm reproduce en cualquier browser/VLC. Para mp4, con un ffmpeg completo:
