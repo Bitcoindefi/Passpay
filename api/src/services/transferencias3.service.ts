@@ -13,6 +13,7 @@
 // y la liquidación on-chain es una transacción real en la red Stellar.
 
 import { sendSettlementPayment } from "./stellar.service";
+import { getArsPerUsd } from "./rate.service";
 import { AssetConfig } from "../types/asset.types";
 
 // ── Datos del comercio recaudador (Passpay) ──────────────────────────────
@@ -135,12 +136,6 @@ export interface T3PaymentReceipt {
   settlement: T3SettlementResult;
 }
 
-/** Tasa de cambio ARS→USD para la demo (reemplazar por anchor/oráculo en prod) */
-function arsPerUsd(): number {
-  const raw = Number(process.env.T3_ARS_PER_USD);
-  return Number.isFinite(raw) && raw > 0 ? raw : 1175;
-}
-
 /** Asset de liquidación on-chain por defecto (XLM nativo para robustez en demo) */
 function settlementAssetFromEnv(): AssetConfig {
   const code = (process.env.T3_SETTLE_ASSET_CODE ?? "XLM").toUpperCase();
@@ -180,7 +175,8 @@ export async function simulateInboundPayment(params: {
   const settlement: T3SettlementResult = { settled: false };
   try {
     const asset = settlementAssetFromEnv();
-    const usd = amountArs / arsPerUsd();
+    const { arsPerUsd } = await getArsPerUsd();
+    const usd = amountArs / arsPerUsd;
     // Si el asset es nativo, convertimos USD→XLM con una referencia simple;
     // si es USDC, el monto en USD es directo.
     const amount =

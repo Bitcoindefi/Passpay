@@ -19,6 +19,14 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 
 // ── splits ───────────────────────────────────────────────
 export const api = {
+  // Cotización ARS/USD oficial del BCRA (con fallback en el backend)
+  rates: {
+    arsUsd: () =>
+      get<{ arsPerUsd: number; source: "BCRA" | "fallback"; asOf: string | null }>(
+        "/rates/ars-usd"
+      ),
+  },
+
   splits: {
     create: (body: {
       totalAmount: number;

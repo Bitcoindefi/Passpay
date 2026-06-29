@@ -77,8 +77,8 @@ export default function CobrarArsPage() {
 
         <div className="text-center mb-6">
           <Image src="/passpay-logo.svg" alt="Passpay" width={220} height={70} priority className="w-auto h-auto max-w-[220px] mx-auto" />
-          <p className="text-sm text-[#16E0A3] font-medium mt-2 flex items-center justify-center gap-1">
-            <Landmark className="w-4 h-4" /> Cobro en ARS · Transferencias 3.0
+          <p className="text-sm text-[#2DD4BF] font-medium mt-2 flex items-center justify-center gap-1">
+            <Landmark className="w-4 h-4" /> Cobrá en pesos con QR
           </p>
         </div>
 
@@ -107,12 +107,12 @@ export default function CobrarArsPage() {
                 <div className="glass-card p-4 bg-slate-800/30 text-sm space-y-1">
                   <div className="flex justify-between"><span className="text-slate-400">Recaudador</span><span className="font-medium">{collector.name}</span></div>
                   <div className="flex justify-between"><span className="text-slate-400">Alias</span><span className="font-mono">{collector.alias}</span></div>
-                  <div className="flex justify-between"><span className="text-slate-400">CVU</span><span className="font-mono text-xs">{collector.cvu}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">CVU (tu cuenta)</span><span className="font-mono text-xs">{collector.cvu}</span></div>
                 </div>
               )}
 
-              <Button onClick={handleGenerate} disabled={loading} className="w-full h-14 text-lg font-bold bg-gradient-to-r from-[#16E0A3] to-[#0FB985] hover:opacity-90 shadow-lg">
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><QrIcon className="w-5 h-5 mr-2" /> Generar QR interoperable</>}
+              <Button onClick={handleGenerate} disabled={loading} className="w-full h-14 text-lg font-bold bg-gradient-to-r from-[#2DD4BF] to-[#14B8A6] hover:opacity-90 shadow-lg">
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><QrIcon className="w-5 h-5 mr-2" /> Generar QR de cobro</>}
               </Button>
             </motion.div>
           )}
@@ -121,7 +121,7 @@ export default function CobrarArsPage() {
             <motion.div key="qr" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="glass-card p-8 space-y-5">
               <div className="text-center">
                 <p className="text-5xl font-bold text-gradient">${qr.fields.amountArs.toFixed(2)}</p>
-                <p className="text-sm text-slate-400 mt-1">ARS · Transferencias 3.0</p>
+                <p className="text-sm text-slate-400 mt-1">Pesos · pagá con cualquier billetera</p>
               </div>
 
               <div className="flex justify-center">
@@ -135,7 +135,7 @@ export default function CobrarArsPage() {
               </div>
 
               <p className="text-xs text-slate-400 text-center">
-                Escaneable por cualquier billetera/banco del esquema interoperable (formato EMVCo).
+                Lo escanea cualquier billetera o banco (Mercado Pago, Modo, tu banco, etc.).
               </p>
 
               <Button onClick={handleSimulate} disabled={loading} className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-[#5B4BF5] to-[#3D2FD6] hover:opacity-90 shadow-lg">
@@ -147,14 +147,14 @@ export default function CobrarArsPage() {
 
           {step === 'done' && receipt && (
             <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-card p-8 space-y-5 text-center">
-              <CheckCircle2 className="w-16 h-16 text-[#16E0A3] mx-auto" />
+              <CheckCircle2 className="w-16 h-16 text-[#2DD4BF] mx-auto" />
               <div>
                 <h2 className="text-2xl font-bold">Pago acreditado</h2>
-                <p className="text-slate-400 text-sm mt-1">${receipt.amountArs.toFixed(2)} ARS vía Coelsa</p>
+                <p className="text-slate-400 text-sm mt-1">${receipt.amountArs.toFixed(2)} ARS acreditados</p>
               </div>
 
               <div className="glass-card p-4 bg-slate-800/30 text-sm space-y-2 text-left">
-                <div className="flex justify-between"><span className="text-slate-400">Coelsa ID</span><span className="font-mono text-xs">{receipt.coelsaId}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">ID de pago</span><span className="font-mono text-xs">{receipt.coelsaId}</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">CVU acreditado</span><span className="font-mono text-xs">{receipt.creditedCvu}</span></div>
               </div>
 
@@ -168,7 +168,7 @@ export default function CobrarArsPage() {
                 >
                   <div>
                     <p className="text-sm font-semibold text-[#8B7CF8] mb-1">
-                      Liquidado on-chain: {receipt.settlement.settlementAmount} {receipt.settlement.settlementAsset}
+                      Guardado en dólares: {receipt.settlement.settlementAmount} {receipt.settlement.settlementAsset}
                     </p>
                     <p className="text-xs text-slate-400 font-mono truncate w-56">{receipt.settlement.stellarTxHash}</p>
                   </div>
@@ -176,8 +176,8 @@ export default function CobrarArsPage() {
                 </a>
               ) : (
                 <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-left">
-                  <p className="text-sm font-semibold text-amber-400 mb-1">Settlement on-chain pendiente</p>
-                  <p className="text-xs text-slate-400">{receipt.settlement.error ?? 'Configurá las cuentas Stellar para liquidar.'}</p>
+                  <p className="text-sm font-semibold text-amber-400 mb-1">Conversión a dólares pendiente</p>
+                  <p className="text-xs text-slate-400">{receipt.settlement.error ?? 'Configurá tu cuenta de dólares para completar la conversión.'}</p>
                 </div>
               )}
 
@@ -189,7 +189,7 @@ export default function CobrarArsPage() {
         {error && <p className="text-sm text-red-400 text-center mt-4">{error}</p>}
 
         <p className="text-center text-xs text-slate-500 mt-6">
-          Transferencias 3.0 (BCRA) → Stellar · Passpay
+          De pesos a dólares, al instante · Passpay
         </p>
       </div>
     </div>

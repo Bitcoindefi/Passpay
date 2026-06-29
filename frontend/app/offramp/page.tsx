@@ -17,6 +17,15 @@ const NETWORK_PASSPHRASE =
     : 'Test SDF Network ; September 2015';
 
 type Step = 'setup' | 'quote' | 'done';
+type Country = 'AR' | 'BR' | 'CO';
+
+// Destinos de off-ramp. AR (BlindPay) está activo; BR/CO (Abroad) quedan
+// como roadmap hasta cerrar el onboarding de partner de Abroad.
+const DESTINATIONS: { code: Country; flag: string; currency: string; provider: string; enabled: boolean }[] = [
+  { code: 'AR', flag: '🇦🇷', currency: 'ARS', provider: 'BlindPay', enabled: true },
+  { code: 'BR', flag: '🇧🇷', currency: 'BRL', provider: 'Abroad', enabled: false },
+  { code: 'CO', flag: '🇨🇴', currency: 'COP', provider: 'Abroad', enabled: false },
+];
 
 interface Customer { id: string; first_name: string; last_name: string; email: string; kyc_status: string }
 interface BankAccount { id: string; type: string; transfers_type: string; transfers_account: string; beneficiary_name: string; status: string }
@@ -28,6 +37,7 @@ interface Quote {
 
 export default function OfframpPage() {
   const [step, setStep] = useState<Step>('setup');
+  const [country, setCountry] = useState<Country>('AR');
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerId, setCustomerId] = useState('');
@@ -88,7 +98,7 @@ export default function OfframpPage() {
 
   async function handleCreateAccount() {
     if (!/^\d{22}$/.test(newCbu) && newCbuType !== 'ALIAS') {
-      return setError('El CBU/CVU debe tener 22 dígitos');
+      return setError('El CBU o CVU debe tener 22 dígitos');
     }
     const customer = customers.find((c) => c.id === customerId);
     const beneficiary = customer ? `${customer.first_name} ${customer.last_name}`.trim() : 'Passpay';
@@ -154,7 +164,7 @@ export default function OfframpPage() {
 
       const auth = await api.blindpay.authorize({ quote_id: quote.id, sender_wallet_address: address });
       const unsignedXdr = auth.transactionHash ?? auth.xdr ?? auth.unsigned_xdr;
-      if (!unsignedXdr) throw new Error('BlindPay no devolvió XDR para firmar');
+      if (!unsignedXdr) throw new Error('No pudimos preparar la operación. Probá de nuevo en un momento.');
 
       const { signedTxXdr } = await StellarWalletsKit.signTransaction(unsignedXdr, {
         networkPassphrase: NETWORK_PASSPHRASE,
@@ -186,7 +196,7 @@ export default function OfframpPage() {
         </Link>
         <div className="text-center mb-6">
           <Image src="/passpay-logo.svg" alt="Passpay" width={180} height={56} priority className="w-auto h-auto max-w-xs mx-auto" />
-          <p className="text-slate-400 text-sm mt-2">Off-ramp USDC → ARS · BlindPay (Transfers/Bitso)</p>
+          <p className="text-slate-400 text-sm mt-2">Pasá tus dólares a pesos en tu cuenta · Procesado por BlindPay</p>
         </div>
 
         {/* pasos */}
@@ -195,10 +205,10 @@ export default function OfframpPage() {
             <div key={s} className="flex items-center gap-2">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all
                 ${step === s ? 'bg-[#5B4BF5] text-white scale-110'
-                  : (['setup', 'quote', 'done'].indexOf(step) > i) ? 'bg-[#16E0A3] text-slate-900' : 'bg-slate-700 text-slate-400'}`}>
+                  : (['setup', 'quote', 'done'].indexOf(step) > i) ? 'bg-[#2DD4BF] text-slate-900' : 'bg-slate-700 text-slate-400'}`}>
                 {(['setup', 'quote', 'done'].indexOf(step) > i) ? '✓' : i + 1}
               </div>
-              {i < 2 && <div className={`w-8 h-0.5 ${(['setup', 'quote', 'done'].indexOf(step) > i) ? 'bg-[#16E0A3]' : 'bg-slate-700'}`} />}
+              {i < 2 && <div className={`w-8 h-0.5 ${(['setup', 'quote', 'done'].indexOf(step) > i) ? 'bg-[#2DD4BF]' : 'bg-slate-700'}`} />}
             </div>
           ))}
         </div>
@@ -210,9 +220,42 @@ export default function OfframpPage() {
             <motion.div key="setup" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
               <h2 className="text-xl font-bold text-center mb-2">Configurá el retiro</h2>
 
+              {/* destino / país — AR (BlindPay) activo; BR/CO (Abroad) próximamente */}
+              <div>
+                <label className="text-xs text-slate-400 mb-1 block">Destino</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {DESTINATIONS.map((d) => {
+                    const active = country === d.code;
+                    return (
+                      <button
+                        key={d.code}
+                        type="button"
+                        onClick={() => d.enabled && setCountry(d.code)}
+                        disabled={!d.enabled}
+                        title={d.enabled ? `${d.currency} · ${d.provider}` : `${d.provider} · próximamente`}
+                        className={`relative p-3 rounded-xl border text-center transition-all ${active
+                          ? 'border-[#5B4BF5] bg-[#5B4BF5]/10'
+                          : d.enabled
+                            ? 'border-slate-600 bg-slate-800/50 hover:border-slate-500'
+                            : 'border-slate-700 bg-slate-800/30 opacity-50 cursor-not-allowed'}`}
+                      >
+                        <div className="text-lg leading-none">{d.flag}</div>
+                        <div className="text-xs font-medium mt-1">{d.currency}</div>
+                        <div className="text-[10px] text-slate-400">{d.provider}</div>
+                        {!d.enabled && (
+                          <span className="absolute -top-1.5 -right-1.5 text-[8px] bg-[#FFB020] text-slate-900 font-bold px-1.5 py-0.5 rounded-full">
+                            Pronto
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* cliente */}
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Cliente (receiver KYC)</label>
+                <label className="text-xs text-slate-400 mb-1 block">Cliente (identidad verificada)</label>
                 <select
                   value={customerId}
                   onChange={(e) => setCustomerId(e.target.value)}
@@ -231,7 +274,7 @@ export default function OfframpPage() {
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="text-xs text-slate-400">Cuenta ARS de destino</label>
-                  <button onClick={() => setShowNewAccount((v) => !v)} className="text-xs text-[#16E0A3] hover:text-[#5B4BF5] inline-flex items-center gap-1">
+                  <button onClick={() => setShowNewAccount((v) => !v)} className="text-xs text-[#2DD4BF] hover:text-[#5B4BF5] inline-flex items-center gap-1">
                     <Plus className="w-3 h-3" /> Nueva CBU/CVU
                   </button>
                 </div>
@@ -251,7 +294,7 @@ export default function OfframpPage() {
                         className={`w-full text-left p-3 rounded-xl border transition-all flex items-center gap-3 ${bankAccountId === b.id
                           ? 'border-[#5B4BF5] bg-[#5B4BF5]/10' : 'border-slate-600 bg-slate-800/50 hover:border-slate-500'}`}
                       >
-                        <Building2 className="w-4 h-4 text-[#16E0A3] shrink-0" />
+                        <Building2 className="w-4 h-4 text-[#2DD4BF] shrink-0" />
                         <div className="min-w-0">
                           <div className="text-sm font-medium truncate">{b.beneficiary_name}</div>
                           <div className="text-[11px] text-slate-400 font-mono">{b.transfers_type} {b.transfers_account} · {b.status}</div>
@@ -282,7 +325,7 @@ export default function OfframpPage() {
                     <button
                       onClick={handleCreateAccount}
                       disabled={busy === 'create-account'}
-                      className="w-full py-2 rounded-lg bg-[#16E0A3] text-slate-900 font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="w-full py-2 rounded-lg bg-[#2DD4BF] text-slate-900 font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       {busy === 'create-account' ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'Crear cuenta ARS'}
                     </button>
@@ -292,7 +335,7 @@ export default function OfframpPage() {
 
               {/* monto */}
               <div>
-                <label className="text-xs text-slate-400 mb-1 block">Monto a enviar (USDC/USDB)</label>
+                <label className="text-xs text-slate-400 mb-1 block">Cuántos dólares querés pasar a pesos</label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
@@ -327,7 +370,7 @@ export default function OfframpPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-400 text-sm">Recibís</span>
-                  <span className="font-bold text-lg text-[#16E0A3]">{fmt(quote.receiver_amount)} ARS</span>
+                  <span className="font-bold text-lg text-[#2DD4BF]">{fmt(quote.receiver_amount)} ARS</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-400 text-sm">Tasa</span>
@@ -346,8 +389,8 @@ export default function OfframpPage() {
               </div>
 
               <p className="text-slate-400 text-sm text-center">
-                Tu wallet firmará una transacción Stellar enviando {fmt(quote.sender_amount)} USDC a BlindPay,
-                que acredita {fmt(quote.receiver_amount)} ARS en la cuenta destino.
+                Confirmás la operación con tu billetera: enviás {fmt(quote.sender_amount)} USDC y se acreditan
+                {fmt(quote.receiver_amount)} ARS en la cuenta de destino.
               </p>
 
               {error && <p className="text-red-400 text-sm bg-red-400/10 rounded-lg px-3 py-2 break-words">{error}</p>}
@@ -369,24 +412,24 @@ export default function OfframpPage() {
           {step === 'done' && receipt && (
             <motion.div key="done" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="space-y-5 text-center">
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', delay: 0.1 }}>
-                <CheckCircle className="w-20 h-20 text-[#16E0A3] mx-auto" />
+                <CheckCircle className="w-20 h-20 text-[#2DD4BF] mx-auto" />
               </motion.div>
-              <h2 className="text-2xl font-bold">¡Payout iniciado!</h2>
+              <h2 className="text-2xl font-bold">¡Retiro iniciado!</h2>
               <p className="text-slate-400 text-sm">BlindPay está procesando la transferencia a la cuenta ARS de destino.</p>
 
-              <div className="bg-slate-800/50 border border-[#16E0A3]/30 rounded-2xl p-5 text-left space-y-3">
+              <div className="bg-slate-800/50 border border-[#2DD4BF]/30 rounded-2xl p-5 text-left space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-slate-400 text-sm">Payout ID</span>
+                  <span className="text-slate-400 text-sm">ID de operación</span>
                   <span className="font-mono text-xs text-slate-300 truncate max-w-[180px]">{receipt.id}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400 text-sm">Estado</span>
-                  <span className="text-[#16E0A3] font-semibold text-sm capitalize">{receipt.status}</span>
+                  <span className="text-[#2DD4BF] font-semibold text-sm capitalize">{receipt.status}</span>
                 </div>
                 {quote && (
                   <div className="flex justify-between">
                     <span className="text-slate-400 text-sm">Recibirá</span>
-                    <span className="text-[#16E0A3] font-bold">{fmt(quote.receiver_amount)} ARS</span>
+                    <span className="text-[#2DD4BF] font-bold">{fmt(quote.receiver_amount)} ARS</span>
                   </div>
                 )}
                 {walletAddress && (
@@ -400,7 +443,7 @@ export default function OfframpPage() {
               <div className="flex gap-3">
                 <button onClick={() => { setStep('setup'); setQuote(null); setReceipt(null); setError(null); }}
                   className="flex-1 h-12 rounded-xl border border-slate-600 hover:border-[#5B4BF5] text-slate-300 hover:text-white transition-all text-sm font-medium">
-                  Nuevo off-ramp
+                  Nuevo retiro
                 </button>
                 <Link href="/" className="flex-1 h-12 rounded-xl bg-[#5B4BF5]/20 border border-[#5B4BF5]/40 hover:bg-[#5B4BF5]/30 text-[#8B7CF8] flex items-center justify-center text-sm font-medium transition-all">
                   Inicio
@@ -411,7 +454,7 @@ export default function OfframpPage() {
 
         </AnimatePresence>
 
-        <p className="text-center text-xs text-slate-600 mt-8">Off-ramp powered by BlindPay · Stellar {NETWORK_PASSPHRASE.includes('Test') ? 'Testnet' : 'Mainnet'}</p>
+        <p className="text-center text-xs text-slate-600 mt-8">Cambio de dólares a pesos · Procesado por BlindPay {NETWORK_PASSPHRASE.includes('Test') ? '· Modo prueba' : ''}</p>
       </div>
     </div>
   );

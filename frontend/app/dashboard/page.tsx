@@ -8,20 +8,20 @@ import { ArrowLeft, Eye, EyeOff, RefreshCw, ExternalLink, ChevronRight } from 'l
 import { ArrowPatternBg, QrIcon, SwapIcon, OffRampIcon, BankIcon } from '@/components/passpay-graphics';
 import { api } from '@/lib/api';
 
-// Tasa estimada ARS/USD (reemplazable por oráculo/quote en vivo)
-const ARS_PER_USD = 1175;
+// Fallback si el backend no responde; el valor real lo trae el BCRA vía /rates/ars-usd
+const ARS_PER_USD_FALLBACK = 1477;
 
 type Status = 'liquidado' | 'acreditado' | 'procesando' | 'pendiente';
 
 const STATUS_STYLES: Record<Status, string> = {
-  liquidado: 'bg-[#16E0A3]/15 text-[#16E0A3] border-[#16E0A3]/30',
+  liquidado: 'bg-[#2DD4BF]/15 text-[#2DD4BF] border-[#2DD4BF]/30',
   acreditado: 'bg-[#5B4BF5]/15 text-[#8B7CF8] border-[#5B4BF5]/30',
   procesando: 'bg-[#FFB020]/15 text-[#FFB020] border-[#FFB020]/30',
   pendiente: 'bg-slate-500/15 text-slate-400 border-slate-500/30',
 };
 
 const STATUS_LABEL: Record<Status, string> = {
-  liquidado: 'Liquidado on-chain',
+  liquidado: 'Confirmado',
   acreditado: 'Acreditado',
   procesando: 'Procesando',
   pendiente: 'Pendiente',
@@ -44,9 +44,9 @@ const MOVIMIENTOS: Movimiento[] = [
     id: '1',
     Icon: QrIcon,
     title: 'Cobro en ARS',
-    detail: 'Transferencias 3.0 · Coelsa',
+    detail: 'Cobro con QR · vía Transferencias 3.0',
     amount: '+ $15.000 ARS',
-    sub: '≈ 12,77 USDC liquidados',
+    sub: '≈ 12,77 en dólares',
     status: 'liquidado',
     time: 'hace 2 min',
     hash: 'b3b1a9f2c7',
@@ -55,7 +55,7 @@ const MOVIMIENTOS: Movimiento[] = [
     id: '2',
     Icon: QrIcon,
     title: 'Cobro en ARS',
-    detail: 'Transferencias 3.0 · Coelsa',
+    detail: 'Cobro con QR · vía Transferencias 3.0',
     amount: '+ $8.500 ARS',
     sub: '≈ 7,23 USDC',
     status: 'acreditado',
@@ -65,7 +65,7 @@ const MOVIMIENTOS: Movimiento[] = [
     id: '3',
     Icon: OffRampIcon,
     title: 'Retiro a pesos',
-    detail: 'Off-ramp · BlindPay',
+    detail: 'A tu cuenta · BlindPay',
     amount: '- 50 USDC',
     sub: '≈ $76.300 ARS a tu CBU',
     status: 'procesando',
@@ -75,9 +75,9 @@ const MOVIMIENTOS: Movimiento[] = [
     id: '4',
     Icon: BankIcon,
     title: 'Cobro en ARS',
-    detail: 'Transferencias 3.0 · Coelsa',
+    detail: 'Cobro con QR · vía Transferencias 3.0',
     amount: '+ $42.000 ARS',
-    sub: '≈ 35,74 USDC liquidados',
+    sub: '≈ 35,74 en dólares',
     status: 'liquidado',
     time: 'ayer',
     hash: 'a1c4e88b02',
@@ -85,23 +85,26 @@ const MOVIMIENTOS: Movimiento[] = [
 ];
 
 const ACTIONS = [
-  { href: '/cobrar-ars', Icon: QrIcon, label: 'Cobrar en ARS', accent: '#16E0A3' },
+  { href: '/cobrar-ars', Icon: QrIcon, label: 'Cobrar en ARS', accent: '#2DD4BF' },
   { href: '/pos', Icon: BankIcon, label: 'POS / Split', accent: '#5B4BF5' },
-  { href: '/offramp', Icon: OffRampIcon, label: 'Off-ramp', accent: '#FFB020' },
-  { href: '/ramp', Icon: SwapIcon, label: 'Rampa USD', accent: '#8B7CF8' },
+  { href: '/offramp', Icon: OffRampIcon, label: 'Pasar a pesos', accent: '#FFB020' },
+  { href: '/ramp', Icon: SwapIcon, label: 'Comprar USD', accent: '#8B7CF8' },
 ];
 
 export default function DashboardPage() {
   const [hidden, setHidden] = useState(false);
   const [arsPrimary, setArsPrimary] = useState(false);
   const [merchant, setMerchant] = useState<string>('Mi negocio');
+  const [arsPerUsd, setArsPerUsd] = useState(ARS_PER_USD_FALLBACK);
+  const [rateSource, setRateSource] = useState<'BCRA' | 'fallback'>('BCRA');
 
   // Balance de demo (reemplazable por /merchant/balance contra Horizon)
   const usdc = 1240.5;
-  const ars = usdc * ARS_PER_USD;
+  const ars = usdc * arsPerUsd;
 
   useEffect(() => {
     api.t3.collector().then((c) => c?.name && setMerchant(c.name)).catch(() => {});
+    api.rates.arsUsd().then((r) => { setArsPerUsd(r.arsPerUsd); setRateSource(r.source); }).catch(() => {});
   }, []);
 
   const fmtUsd = (n: number) => n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -143,7 +146,7 @@ export default function DashboardPage() {
           {arsPrimary ? (
             <>
               <p className="mt-3 text-4xl font-black tabular-nums">{mask(`$${fmtArs(ars)}`)}</p>
-              <p className="mt-1 text-sm text-white/70">≈ {mask(`${fmtUsd(usdc)} USDC`)} on-chain</p>
+              <p className="mt-1 text-sm text-white/70">≈ {mask(`${fmtUsd(usdc)} en dólares`)}</p>
             </>
           ) : (
             <>
@@ -153,8 +156,8 @@ export default function DashboardPage() {
           )}
 
           <div className="mt-5 flex items-center gap-2 text-[11px] text-white/60">
-            <span className="inline-block h-2 w-2 rounded-full bg-[#16E0A3]" />
-            Liquidado en Stellar · tasa ≈ {fmtArs(ARS_PER_USD)} ARS/USD
+            <span className="inline-block h-2 w-2 rounded-full bg-[#2DD4BF]" />
+            Acreditado al instante · 1 USD ≈ AR$ {fmtArs(arsPerUsd)} · {rateSource === 'BCRA' ? 'BCRA' : 'ref.'}
           </div>
         </motion.div>
 
@@ -203,7 +206,7 @@ export default function DashboardPage() {
                         <p className="truncate text-xs text-slate-400">{m.detail}</p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className={`text-sm font-bold tabular-nums ${m.amount.startsWith('+') ? 'text-[#16E0A3]' : 'text-white'}`}>{m.amount}</p>
+                        <p className={`text-sm font-bold tabular-nums ${m.amount.startsWith('+') ? 'text-[#2DD4BF]' : 'text-white'}`}>{m.amount}</p>
                         <p className="text-[11px] text-slate-500">{m.time}</p>
                       </div>
                     </div>
@@ -217,9 +220,9 @@ export default function DashboardPage() {
                           href={`https://stellar.expert/explorer/testnet/tx/${m.hash}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex shrink-0 items-center gap-1 text-[11px] text-[#8B7CF8] hover:text-[#16E0A3]"
+                          className="flex shrink-0 items-center gap-1 text-[11px] text-[#8B7CF8] hover:text-[#2DD4BF]"
                         >
-                          on-chain <ExternalLink className="h-3 w-3" />
+                          Ver comprobante <ExternalLink className="h-3 w-3" />
                         </a>
                       )}
                     </div>
@@ -229,13 +232,13 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          <Link href="/cobrar-ars" className="mt-5 flex items-center justify-center gap-1 rounded-2xl border border-[#16E0A3]/30 bg-[#16E0A3]/10 py-3.5 text-sm font-semibold text-[#16E0A3] transition-all hover:bg-[#16E0A3]/20">
+          <Link href="/cobrar-ars" className="mt-5 flex items-center justify-center gap-1 rounded-2xl border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 py-3.5 text-sm font-semibold text-[#2DD4BF] transition-all hover:bg-[#2DD4BF]/20">
             Nuevo cobro <ChevronRight className="h-4 w-4" />
           </Link>
         </motion.div>
 
         <p className="mt-8 text-center text-[11px] text-slate-600">
-          Transferencias 3.0 + Anchor SEP-24 + BlindPay · liquidación en Stellar
+          Cobrás en pesos, ahorrás en dólares · Tecnología Transferencias 3.0 y Stellar
         </p>
       </div>
     </div>

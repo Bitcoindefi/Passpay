@@ -15,10 +15,10 @@
   <!-- two interlocking arrows = value passing / swap -->
   <path d="M24 38 H50 l-7 -7 M48 58 H22 l7 7" stroke="#FFFFFF" stroke-width="5"
         stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <circle cx="55" cy="38" r="4.5" fill="#16E0A3"/>
+  <circle cx="55" cy="38" r="4.5" fill="#2DD4BF"/>
 
   <!-- Wordmark -->
   <text x="86" y="62" font-family="'Geist','Inter',system-ui,sans-serif" font-size="42" font-weight="700">
-    <tspan fill="url(#ppWord)">Pass</tspan><tspan fill="#16E0A3">pay</tspan>
+    <tspan fill="url(#ppWord)">Pass</tspan><tspan fill="#2DD4BF">pay</tspan>
   </text>
 </svg>

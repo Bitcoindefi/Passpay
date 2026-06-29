@@ -5,7 +5,10 @@ generator client {
 datasource db {
   provider = "postgresql" //  sqlite
 
-  url      = env("DATABASE_URL") //   "file:./dev.db"
+  // Runtime (serverless/Vercel) usa el transaction pooler (6543, pgbouncer).
+  // Las migraciones usan la conexión de sesión (5432) via directUrl.
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Split {

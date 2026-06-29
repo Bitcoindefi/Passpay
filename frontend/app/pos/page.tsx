@@ -98,7 +98,7 @@ useEffect(() => {
             priority
             className="w-auto h-auto max-w-xs mx-auto mb-3"
           />
-          <p className="text-sm text-[#16E0A3] font-medium">Punto de Venta · Pagos Compartidos</p>
+          <p className="text-sm text-[#2DD4BF] font-medium">Punto de Venta · Pagos Compartidos</p>
         </div>
 
         <AnimatePresence mode="wait">
@@ -209,7 +209,7 @@ useEffect(() => {
                   className="text-center py-12 space-y-6"
                 >
                   <div className="text-8xl">✅</div>
-                  <h2 className="text-4xl font-bold text-[#16E0A3]">¡Pago Completado!</h2>
+                  <h2 className="text-4xl font-bold text-[#2DD4BF]">¡Pago Completado!</h2>
                   <p className="text-slate-400">El split fue pagado por todos</p>
                   {settledSplit?.stellarTxHash && (
   
@@ -228,7 +228,7 @@ useEffect(() => {
                   )}
                   <Button
                     onClick={handleReset}
-                    className="w-full h-14 bg-gradient-to-r from-[#16E0A3] to-[#0FB985] text-white font-bold text-lg"
+                    className="w-full h-14 bg-gradient-to-r from-[#2DD4BF] to-[#14B8A6] text-white font-bold text-lg"
                   >
                     Nuevo Cobro
                   </Button>

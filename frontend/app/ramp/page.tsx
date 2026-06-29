@@ -81,7 +81,7 @@ export default function RampPage() {
         </Link>
         <div className="text-center mb-6">
           <Image src="/passpay-logo.svg" alt="Passpay" width={200} height={64} priority className="w-auto h-auto max-w-[200px] mx-auto" />
-          <p className="text-sm text-[#16E0A3] font-medium mt-2">Rampa fiat ↔ dólar on-chain</p>
+          <p className="text-sm text-[#2DD4BF] font-medium mt-2">Comprá y vendé dólares</p>
         </div>
       </div>
 
@@ -89,14 +89,14 @@ export default function RampPage() {
         {/* Estado del anchor */}
         <div className="glass-card p-4 bg-slate-800/30 text-sm">
           {anchorError ? (
-            <p className="text-red-400">Anchor no disponible: {anchorError}</p>
+            <p className="text-red-400">El servicio de cambio no está disponible por ahora. Probá de nuevo en un momento.</p>
           ) : anchor ? (
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Anchor</span>
-              <span className="font-medium text-white">{anchor.name}</span>
+              <span className="text-slate-400">Proveedor de cambio</span>
+              <span className="font-medium text-white">{/reference|testnet/i.test(anchor.name) ? 'Proveedor de prueba' : anchor.name}</span>
             </div>
           ) : (
-            <p className="text-slate-400 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Conectando con el anchor…</p>
+            <p className="text-slate-400 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Conectando con el proveedor de cambio…</p>
           )}
         </div>
 
@@ -106,13 +106,13 @@ export default function RampPage() {
             onClick={() => setDirection('withdraw')}
             className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
               direction === 'withdraw'
-                ? 'border-[#16E0A3] bg-[#16E0A3]/10'
+                ? 'border-[#2DD4BF] bg-[#2DD4BF]/10'
                 : 'border-slate-700 bg-slate-800/40 hover:border-slate-600'
             }`}
           >
-            <ArrowUpFromLine className="w-6 h-6 text-[#16E0A3]" />
+            <ArrowUpFromLine className="w-6 h-6 text-[#2DD4BF]" />
             <span className="font-semibold text-sm">Cobrar en {fiat}</span>
-            <span className="text-[11px] text-slate-400">{asset} → {fiat} (off-ramp)</span>
+            <span className="text-[11px] text-slate-400">Recibí {fiat} en tu cuenta</span>
           </button>
           <button
             onClick={() => setDirection('deposit')}
@@ -123,8 +123,8 @@ export default function RampPage() {
             }`}
           >
             <ArrowDownToLine className="w-6 h-6 text-[#8B7CF8]" />
-            <span className="font-semibold text-sm">Fondear {asset}</span>
-            <span className="text-[11px] text-slate-400">{fiat} → {asset} (on-ramp)</span>
+            <span className="font-semibold text-sm">Comprar dólares</span>
+            <span className="text-[11px] text-slate-400">Pagás con {fiat}</span>
           </button>
         </div>
 
@@ -151,10 +151,10 @@ export default function RampPage() {
           className={`w-full h-14 text-lg font-semibold shadow-lg ${
             isDeposit
               ? 'bg-gradient-to-r from-[#5B4BF5] to-[#3D2FD6]'
-              : 'bg-gradient-to-r from-[#16E0A3] to-[#0FB985]'
+              : 'bg-gradient-to-r from-[#2DD4BF] to-[#14B8A6]'
           } hover:opacity-90`}
         >
-          {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : isDeposit ? `Fondear ${asset}` : `Retirar a ${fiat}`}
+          {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : isDeposit ? 'Comprar dólares' : `Retirar a ${fiat}`}
         </Button>
 
         {error && <p className="text-sm text-red-400 text-center">{error}</p>}
@@ -163,12 +163,12 @@ export default function RampPage() {
         {txId && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-5 bg-slate-800/40 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-sm">Transacción SEP-24</span>
+              <span className="text-slate-400 text-sm">Operación</span>
               <span className="font-mono text-xs text-slate-500 truncate max-w-[160px]">{txId}</span>
             </div>
             <div className="flex items-center gap-2">
               {status && TERMINAL.has(status) ? (
-                <CheckCircle2 className="w-5 h-5 text-[#16E0A3]" />
+                <CheckCircle2 className="w-5 h-5 text-[#2DD4BF]" />
               ) : (
                 <Loader2 className="w-5 h-5 animate-spin text-[#8B7CF8]" />
               )}
@@ -176,13 +176,13 @@ export default function RampPage() {
             </div>
             {statusMsg && <p className="text-xs text-slate-400">{statusMsg}</p>}
             <p className="text-xs text-slate-500">
-              Completá el KYC y la transferencia en la ventana del anchor. El estado se actualiza solo.
+              Completá la verificación de identidad y la transferencia en la ventana que se abrió. El estado se actualiza solo.
             </p>
           </motion.div>
         )}
 
         <p className="text-center text-xs text-slate-500 pt-2 flex items-center justify-center gap-1">
-          SEP-10 + SEP-24 sobre Stellar <ExternalLink className="w-3 h-3" />
+          Cambio seguro de dólares · Tecnología Stellar <ExternalLink className="w-3 h-3" />
         </p>
       </div>
     </div>

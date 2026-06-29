@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from 'react';
 
+// Flag a nivel de módulo: sobrevive el doble-invoke de useEffect (React StrictMode en dev)
+// pero se resetea en cada carga completa de la página. Así el splash se muestra una vez
+// por carga y no reaparece al navegar client-side dentro de la misma sesión.
+let shownThisLoad = false;
+
 /**
  * Splash de bienvenida: muestra la portada (public/passpay-cover.png) unos segundos
  * al entrar y luego hace fade al contenido. Tocar la pantalla lo saltea.
@@ -12,6 +17,13 @@ export default function SplashScreen({ duration = 3000 }: { duration?: number })
   const [imgOk, setImgOk] = useState(true);
 
   useEffect(() => {
+    // Ya se mostró en una navegación previa de esta sesión → saltear (no en el doble-invoke).
+    if (typeof window !== 'undefined' && sessionStorage.getItem('pp-splash-seen') && !shownThisLoad) {
+      setPhase('gone');
+      return;
+    }
+    shownThisLoad = true;
+    if (typeof window !== 'undefined') sessionStorage.setItem('pp-splash-seen', '1');
     const t1 = setTimeout(() => setPhase('hide'), duration);
     const t2 = setTimeout(() => setPhase('gone'), duration + 700);
     return () => {
@@ -48,7 +60,7 @@ export default function SplashScreen({ duration = 3000 }: { duration?: number })
             <span className="text-gradient">Ahorrá en dólares.</span>
           </h1>
           <p className="text-slate-400 mt-3">
-            Simple. Rápido. <span className="text-[#16E0A3]">En Stellar.</span>
+            Simple. Rápido. <span className="text-[#2DD4BF]">En Stellar.</span>
           </p>
         </div>
       )}
@@ -56,7 +68,7 @@ export default function SplashScreen({ duration = 3000 }: { duration?: number })
       {/* barra de progreso sincronizada con la duración */}
       <div className="absolute bottom-12 w-40 h-1 rounded-full bg-white/10 overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-[#5B4BF5] to-[#16E0A3]"
+          className="h-full bg-gradient-to-r from-[#5B4BF5] to-[#2DD4BF]"
           style={{ animation: `splashbar ${duration}ms linear forwards` }}
         />
       </div>

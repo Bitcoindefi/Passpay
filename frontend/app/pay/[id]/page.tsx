@@ -31,6 +31,11 @@ export default function PaySplitPage({ params }: { params: Promise<{ id: string 
   const [error, setError] = useState<string | null>(null);
   const [selectedCurrency, setSelectedCurrency] = useState('USDC');
   const [mpLoading, setMpLoading] = useState(false);
+  const [arsRate, setArsRate] = useState(1477); // ARS/USD; se actualiza con la cotización del BCRA
+
+  useEffect(() => {
+    api.rates.arsUsd().then((r) => setArsRate(r.arsPerUsd)).catch(() => {});
+  }, []);
 
   const handlePayWithMP = async () => {
   setMpLoading(true);
@@ -77,7 +82,7 @@ export default function PaySplitPage({ params }: { params: Promise<{ id: string 
   const rates: { [key: string]: number } = {
     'XLM': 11.68,
     'USDC': 1,
-    'ARS': 1175,
+    'ARS': arsRate,
     'BTC': 0.000015,
     'ETH': 0.00031,
     'BRL': 5.2,

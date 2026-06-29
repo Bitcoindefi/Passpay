@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Passpay — Cobrá en cualquier moneda, liquidá en dólares on-chain",
+  title: "Passpay — Cobrá en pesos, ahorrá en dólares",
   description:
-    "Passpay conecta Transferencias 3.0 (Argentina) con Stellar: cobrá con un QR interoperable en cualquier moneda y liquidá en USDC/XLM on-chain, con on/off-ramp vía anchor SEP-24.",
+    "Passpay conecta Transferencias 3.0 (Argentina) con Stellar: cobrá con un QR que escanea cualquier billetera o banco, y guardá el valor en dólares al instante.",
 };
 
 export default function RootLayout({
