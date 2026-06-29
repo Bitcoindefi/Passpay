@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, CheckCircle, Wallet, DollarSign, RefreshCw, Plus, Building2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Wallet, DollarSign, RefreshCw, Plus, Building2, Globe } from 'lucide-react';
 import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk';
 import { defaultModules } from '@creit-tech/stellar-wallets-kit/modules/utils';
 import { SwkAppDarkTheme } from '@creit-tech/stellar-wallets-kit/types';
@@ -218,7 +218,7 @@ export default function OfframpPage() {
                 className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-700 bg-slate-800/30 opacity-60 cursor-not-allowed"
               >
                 <span className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                  <span className="text-base leading-none">🇧🇷 🇨🇴</span> Abroad · Brasil/Colombia
+                  <Globe className="w-4 h-4 text-[#2DD4BF] shrink-0" /> Abroad · Brasil/Colombia
                 </span>
                 <span className="text-[10px] bg-[#FFB020] text-slate-900 font-bold px-2 py-0.5 rounded-full">Próximamente</span>
               </button>
