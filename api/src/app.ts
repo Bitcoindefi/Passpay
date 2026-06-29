@@ -10,6 +10,7 @@ import abroadRouter from "./routes/abroad.routes";
 import blindpayRouter from "./routes/blindpay.routes";
 import mpRouter from "./routes/mp.routes";
 import webhooksRouter from "./routes/webhooks.routes";
+import paymentHistoryRouter from "./routes/payment-history.routes";
 
 
 
@@ -27,7 +28,8 @@ export function createApp() {
   app.use("/abroad", abroadRouter);
   app.use("/blindpay", blindpayRouter);
   app.use("/mp", mpRouter);
-  app.use("/webhooks", webhooksRouter); 
+  app.use("/webhooks", webhooksRouter);
+  app.use("/payments", paymentHistoryRouter);
 
   //
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
