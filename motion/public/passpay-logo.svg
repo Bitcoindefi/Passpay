@@ -1,0 +1,24 @@
+<svg width="300" height="96" viewBox="0 0 300 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Passpay">
+  <defs>
+    <linearGradient id="ppMark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5B4BF5"/>
+      <stop offset="1" stop-color="#3D2FD6"/>
+    </linearGradient>
+    <linearGradient id="ppWord" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7C6FF7"/>
+      <stop offset="1" stop-color="#5B4BF5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Mark: rounded square with an exchange / "pass" loop -->
+  <rect x="4" y="14" width="68" height="68" rx="20" fill="url(#ppMark)"/>
+  <!-- two interlocking arrows = value passing / swap -->
+  <path d="M24 38 H50 l-7 -7 M48 58 H22 l7 7" stroke="#FFFFFF" stroke-width="5"
+        stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="55" cy="38" r="4.5" fill="#2DD4BF"/>
+
+  <!-- Wordmark -->
+  <text x="86" y="62" font-family="'Geist','Inter',system-ui,sans-serif" font-size="42" font-weight="700">
+    <tspan fill="url(#ppWord)">Pass</tspan><tspan fill="#2DD4BF">pay</tspan>
+  </text>
+</svg>

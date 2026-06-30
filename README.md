@@ -12,7 +12,7 @@ Passpay es una capa de orquestación de pagos para Argentina que conecta el rail
 |---|---|
 | 🌐 **App** | **https://passpay-one.vercel.app** |
 | ⚙️ **API** | **https://passpay-api.vercel.app** (`/health`, `/transferencias3/collector`, `/anchor/info`…) |
-| 🎥 **Video** | [docs/demo/passpay-flows.webm](docs/demo/passpay-flows.webm) — recorrido de los 4 flujos |
+| 🎥 **Video** | [docs/demo/passpay-pitch.mp4](docs/demo/passpay-pitch.mp4) — slides Problema/Solución + demo de los 4 flujos (incl. SEP-24) |
 | 🧭 **¿Nuevo en el repo?** | [docs/FLUJOS.md](docs/FLUJOS.md) — los flujos explicados paso a paso |
 
 ---
