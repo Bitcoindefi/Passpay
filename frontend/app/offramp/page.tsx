@@ -35,6 +35,20 @@ interface Quote {
   contract: { address: string; amount: string; network: { name: string } };
 }
 
+// Genera un CBU argentino con checksum válido y número de cuenta único (basado en el tiempo).
+function makeValidCbu(): string {
+  const bankBranch = '0170099'; // Banco Galicia (3) + sucursal (4)
+  const acc = String(Date.now()).slice(-13).padStart(13, '0');
+  const ck = (d: string, w: number[]) => {
+    let s = 0;
+    for (let i = 0; i < d.length; i++) s += parseInt(d[i], 10) * w[i];
+    return (10 - (s % 10)) % 10;
+  };
+  const c1 = ck(bankBranch, [7, 1, 3, 9, 7, 1, 3]);
+  const c2 = ck(acc, [3, 9, 7, 1, 3, 9, 7, 1, 3, 9, 7, 1, 3]);
+  return `${bankBranch}${c1}${acc}${c2}`;
+}
+
 export default function OfframpPage() {
   const [step, setStep] = useState<Step>('setup');
   const [country, setCountry] = useState<Country>('AR');
@@ -45,10 +59,11 @@ export default function OfframpPage() {
   const [bankAccountId, setBankAccountId] = useState('');
   const [usdAmount, setUsdAmount] = useState('50');
 
-  // crear cuenta ARS — pre-cargamos un CBU de prueba válido (Banco Galicia, checksum OK)
-  const DEMO_CBU = '0170099220000067797370';
+  // crear cuenta ARS — generamos un CBU válido ÚNICO por sesión (checksum OK, Banco Galicia).
+  // Único para no chocar con "ya guardado" en BlindPay si se reusa un CBU en el mismo receiver.
+  const [demoCbu] = useState(makeValidCbu);
   const [showNewAccount, setShowNewAccount] = useState(false);
-  const [newCbu, setNewCbu] = useState(DEMO_CBU);
+  const [newCbu, setNewCbu] = useState(demoCbu);
   const [newCbuType, setNewCbuType] = useState<'CBU' | 'CVU' | 'ALIAS'>('CBU');
 
   const [quote, setQuote] = useState<Quote | null>(null);
@@ -316,7 +331,7 @@ export default function OfframpPage() {
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-3 p-3 rounded-xl bg-slate-800/70 border border-slate-700 space-y-2">
                     <div className="flex gap-2">
                       {(['CBU', 'CVU', 'ALIAS'] as const).map((t) => (
-                        <button key={t} onClick={() => { setNewCbuType(t); setNewCbu(t === 'ALIAS' ? '' : DEMO_CBU); setError(null); }}
+                        <button key={t} onClick={() => { setNewCbuType(t); setNewCbu(t === 'ALIAS' ? '' : demoCbu); setError(null); }}
                           className={`flex-1 py-1.5 rounded-lg text-xs font-semibold ${newCbuType === t ? 'bg-[#5B4BF5] text-white' : 'bg-slate-700 text-slate-300'}`}>
                           {t}
                         </button>
