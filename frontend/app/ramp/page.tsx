@@ -86,6 +86,11 @@ export default function RampPage() {
       </div>
 
       <div className="px-4 pb-12 max-w-md mx-auto space-y-6">
+        {/* Aviso versión de prueba */}
+        <div className="rounded-xl border border-[#FFB020]/30 bg-[#FFB020]/10 px-4 py-3 text-xs text-[#FFB020]">
+          🧪 <span className="font-semibold">Versión de prueba.</span> Usá montos de hasta <span className="font-semibold">10 USD</span> (o su equivalente convertido). El proveedor de cambio de testnet limita el monto.
+        </div>
+
         {/* Estado del anchor */}
         <div className="glass-card p-4 bg-slate-800/30 text-sm">
           {anchorError ? (

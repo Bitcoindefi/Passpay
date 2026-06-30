@@ -1,67 +1,157 @@
-# Passpay — Pitch Deck (outline)
+# Passpay — Pitch Deck
 
-> Guión de slides para el pitch IRL (PULSO Argentina / track de Integración Stellar).
-> Cada bloque = 1 slide. Diseñar con la paleta de marca: Indigo `#5B4BF5`, Mint `#16E0A3`, fondo Deep `#0B0E14`.
+> Deck estilo YC para el pitch IRL (PULSO Argentina / track de Integración Stellar).
+> Cada `##` = 1 slide. Diseñar con la paleta: Indigo `#5B4BF5` → Teal `#2DD4BF`, fondo Deep `#0B0E14`.
+> Demo en vivo: **https://passpay-one.vercel.app** · Repo: github.com/Bitcoindefi/Passpay
 
 ---
 
-## 1 — Portada
-**Passpay**
-*Cobrá en cualquier moneda. Liquidá en dólares on-chain.*
-Logo + "Transferencias 3.0 → Stellar". Una línea: el puente entre el peso argentino y el dólar on-chain.
+## 1 · Portada
 
-## 2 — El problema
-Argentina, dos realidades a la vez:
-- **Transferencias 3.0** ya mueve los pagos locales: QR interoperable, instantáneo, 24/7.
-- La demanda de **dólar digital** es de las más altas de la región.
-- **No hay capa que los una.** Cobrar en pesos y settlear en dólares on-chain es fricción pura para un comercio.
+# Passpay
+**Cobrá en pesos. Ahorrá en dólares.**
 
-> "Hoy el comercio elige: o cobra fácil en pesos, o se complica para tener dólares."
+La capa que conecta el rail de pagos argentino (Transferencias 3.0) con el dólar on-chain (Stellar).
 
-## 3 — La solución
-Passpay: una capa de orquestación. El comercio configura su **moneda de liquidación** una vez (USDC/XLM).
-- Cliente paga como quiere (ARS por Transferencias 3.0, o wallet Stellar).
-- Passpay convierte y **liquida on-chain**.
-- El comercio recibe **siempre** su moneda. Off-ramp a pesos vía anchor cuando quiera.
+*Una línea: el comercio cobra en pesos como siempre, pero el valor le queda en dólares.*
 
-## 4 — Demo (el corazón del pitch)
-Mostrar en vivo (ver `DEMO.md`):
-1. `/cobrar-ars`: monto → QR interoperable EMVCo → "simular pago" → **tx real en Stellar Expert**.
-2. `/ramp`: retiro USDC → ARS vía anchor **SEP-24** (flujo hosted real).
+---
 
-## 5 — Por qué es diferente
-- **Integración load-bearing, no decorativa:** sin Stellar no hay producto.
-- **Rail local real:** QR EMVCo válido (TLV + CRC16), no un mock de UI.
-- **Anchor real:** SEP-1/10/24 agnóstico — Anclap en prod, anchor de referencia SDF en testnet. Validado end-to-end.
-- **UX cripto-invisible:** el comercio nunca toca una seed phrase para cobrar.
+## 2 · El problema
 
-## 6 — Cómo funciona (arquitectura)
-Diagrama (`docs/architecture.svg`):
-`Transferencias 3.0 / SEP-7  →  Passpay (orquestación + conversión)  →  Stellar (settlement) ↔ Anchor SEP-24 (fiat)`
-Stack: Next.js + Express/TS + `@stellar/stellar-sdk` + Horizon + Prisma.
+**Argentina vive dos realidades a la vez:**
 
-## 7 — Stellar bajo el capó
-| Estándar | Uso |
-|---|---|
-| SEP-1/10/24 | on/off-ramp dólar ↔ ARS (anchor) |
-| Path Payment | settlement en la moneda del comercio |
-| SEP-7 | QR de pago para wallets |
-| EMVCo + Coelsa | Transferencias 3.0 |
+- 🇦🇷 **Cobrás en pesos.** Transferencias 3.0 (BCRA) ya mueve los pagos locales: QR interoperable, instantáneo, 24/7.
+- 💸 **Pero el peso se devalúa.** La demanda de dólar es de las más altas del mundo: el argentino quiere ahorrar en USD.
+- 🧱 **No hay puente.** Pasar lo que cobrás en pesos a dólares (y de vuelta) es fricción pura: cuevas, límites, cripto compleja, custodia.
 
-## 8 — Mercado / impacto
-- Transferencias 3.0 redefine los flujos de pago locales: timing perfecto.
-- Demanda de dólar digital altísima en LATAM.
-- Comercios, freelancers, remesas: cualquiera que cobre en pesos y quiera ahorrar/operar en dólares.
+> "Cobro fácil en pesos, o me complico para tener dólares. No las dos." — todo comercio argentino.
 
-## 9 — Tracción / estado
-- MVP funcional: anchor SEP-24 validado en testnet, QR Transferencias 3.0 EMVCo válido, settlement on-chain real.
-- Open source (MIT). Repo + README + demo.
+---
 
-## 10 — Roadmap
-- Anclap producción (ARS ↔ USDC con credenciales).
-- Webhook bancario Coelsa real (reemplaza simulación).
-- Escrow Soroban (Trustless Work) para cobros con liberación condicionada.
+## 3 · La solución
 
-## 11 — Cierre / ask
-**Passpay: el peso entra por el rail de siempre, el dólar sale on-chain.**
-Equipo + contacto + link al repo.
+**Passpay: cobrás en pesos, el valor queda en dólares on-chain. Sin tocar cripto.**
+
+El comercio configura su moneda de ahorro (USDC) una vez. Después:
+
+1. Cobra con un **QR de Transferencias 3.0** (el de siempre).
+2. Passpay **liquida en dólares on-chain** en Stellar, en segundos.
+3. Retira a pesos en su cuenta cuando quiere (off-ramp a CBU/CVU).
+
+**UX cripto-invisible:** nunca ve una seed phrase para cobrar.
+
+---
+
+## 4 · Demo (el corazón)
+
+Mostrar en vivo (https://passpay-one.vercel.app):
+
+1. `/cobrar-ars` — monto → **QR interoperable real** → "pago" → **liquidación on-chain** con hash verificable en Stellar Expert.
+2. `/dashboard` — balance en USD con equivalente en ARS (cotización **BCRA** en vivo) + movimientos.
+3. `/offramp` — retiro **USDC → ARS** a un CBU (cotización real BlindPay).
+
+*No es un mockup: hay transacciones reales en Stellar testnet.*
+
+---
+
+## 5 · Por qué ahora
+
+- **Transferencias 3.0** (lanzado por el BCRA en 2024) volvió interoperables los QR: timing perfecto para una capa encima.
+- **Stablecoins en LATAM**: adopción récord global; el dólar digital ya es comportamiento, no narrativa.
+- **Stellar**: liquidación en segundos, fees ínfimos, y anchors regulados para el on/off-ramp fiat.
+
+> La infraestructura recién ahora existe para hacer esto simple. Hace 2 años, no.
+
+---
+
+## 6 · Cómo funciona (arquitectura)
+
+```
+[Cliente] --ARS, QR T3--> Passpay --liquida--> Stellar (USDC) --off-ramp--> [CBU del comercio]
+                             │                     │
+                       orquestación          settlement on-chain
+                       + conversión           (verificable)
+```
+
+Stack: Next.js + Express/TS + `@stellar/stellar-sdk` + Horizon. Anchor SEP-1/10/24, off-ramp BlindPay, rail EMVCo + Coelsa, tasa BCRA. **Open source (MIT).**
+
+---
+
+## 7 · Stellar bajo el capó (load-bearing)
+
+| Capa | Estándar | Rol |
+|---|---|---|
+| Liquidación on-chain | Horizon · payment / path payment | el comercio recibe dólares |
+| Off-ramp USDC→ARS | tx Stellar firmada (no custodial) | dólares → pesos a un CBU |
+| On/off-ramp anchor | SEP-1 / SEP-10 / SEP-24 | rampa fiat ↔ dólar |
+| Pago con wallet | build → sign → submit | POS / split |
+
+*Sin Stellar no hay producto. Hay txs reales verificables en Stellar Expert.*
+
+---
+
+## 8 · Mercado
+
+- **TAM** — pagos digitales + flujos de stablecoin en LATAM (decenas de miles de millones de USD/año).
+- **SAM** — comercios y freelancers en Argentina que cobran en pesos y quieren ahorrar/operar en dólares (millones de CUIT activos; Transferencias 3.0 procesa cientos de millones de operaciones).
+- **SOM (beachhead)** — SMBs cripto-friendly, vendedores online, freelancers y profesionales que ya buscan dolarizarse: decenas de miles, alcanzables vía comunidad y partners.
+
+*Entrás por el nicho que ya quiere dólares, y te expandís al comercio masivo.*
+
+---
+
+## 9 · Modelo de negocio (revenue)
+
+Ingresos por transacción, alineados al volumen del comercio:
+
+1. **Spread de conversión** ARS↔USD: ~**0,8–1,5%** por operación (cobro y off-ramp).
+2. **Fee de off-ramp** a CBU/CVU: fijo + variable.
+3. **SaaS para comercios** (tier Pro): dashboard multi-usuario, conciliación, analytics, API — abono mensual.
+4. **Float / tesorería**: rendimiento sobre saldos en tránsito (a futuro, regulado).
+
+> Unit economics: con 1% de spread, un comercio que cobra USD 5.000/mes deja ~USD 50/mes de ingreso, a costo marginal casi nulo (infra Stellar).
+
+---
+
+## 10 · Go-to-market
+
+- **Fase 1 — Beachhead (0–6 meses):** comunidad cripto/fintech AR, freelancers y vendedores online. Onboarding self-serve + referidos. Foco en "cobrá y dolarizate en un toque".
+- **Fase 2 — Partners (6–18 meses):** integración vía API/SDK con billeteras, PSPs y plataformas de e-commerce; Passpay como "liquidación en dólares as-a-service".
+- **Fase 3 — Escala (18+):** comercio masivo, payouts B2B, remesas, y expansión LATAM (Brasil PIX, Colombia PSE — rails ya contemplados).
+
+CAC bajo: producto que se muestra solo (el comercio ve dólares cayendo en segundos).
+
+---
+
+## 11 · Competencia / diferencial
+
+| | Billeteras (Lemon, Belo, Ripio) | PSP tradicional (Mercado Pago) | **Passpay** |
+|---|---|---|---|
+| Cobro local interoperable | parcial | sí | **sí (T3)** |
+| Liquidación en dólares on-chain | custodial | no | **sí, no custodial** |
+| UX cripto-invisible para el comercio | no | n/a | **sí** |
+| Open / componible (API, Stellar) | no | no | **sí** |
+
+**Diferencial:** no somos otra wallet. Somos la **capa de orquestación** que convierte el rail local en liquidación en dólares — integrable y abierta.
+
+---
+
+## 12 · Tracción / estado
+
+- ✅ **MVP funcional y deployado** (front + API en producción).
+- ✅ **Liquidación on-chain real** en Stellar (txs verificables en Stellar Expert).
+- ✅ Off-ramp USDC→ARS con cotización real (BlindPay) + anchor SEP-24 validado en testnet.
+- ✅ QR Transferencias 3.0 EMVCo válido + tasa oficial BCRA en vivo.
+- ✅ Open source (MIT), demo pública y video.
+
+*De idea a producto liquidando dólares on-chain, durante el hackathon.*
+
+---
+
+## 13 · Roadmap
+
+- **Q1** — Anclap producción (ARS↔USDC con credenciales), webhook bancario Coelsa real, primeros comercios reales.
+- **Q2** — App de comercio completa, conciliación, multi-usuario; piloto con partner (billetera/PSP).
+- **Q3** — Off-ramp Brasil (PIX) y Colombia (PSE); payouts B2B.
+- **Q4** — Escrow condicional (Soroban / Trustless Work), tesorería con rendimiento.
