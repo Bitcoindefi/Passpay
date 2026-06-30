@@ -9,6 +9,8 @@ import {
   spring,
   Easing,
 } from "remotion";
+import { PhoneDemo } from "./Demo";
+import { AudioLayer } from "./AudioLayer";
 
 const C = {
   deep: "#0B0E14",
@@ -214,10 +216,12 @@ const Solucion: React.FC = () => {
 };
 
 // ── Composición ─────────────────────────────────────────
-export const Slides: React.FC = () => {
+// Slides (intro · problema · solución) → demo en marco de teléfono. Todo Remotion.
+export const Pitch: React.FC = () => {
   return (
     <AbsoluteFill style={{ fontFamily: FONT }}>
       <ArrowBg />
+      <AudioLayer />
       <Sequence durationInFrames={96}>
         <Fade durationInFrames={96}>
           <Intro />
@@ -231,6 +235,11 @@ export const Slides: React.FC = () => {
       <Sequence from={258} durationInFrames={162}>
         <Fade durationInFrames={162}>
           <Solucion />
+        </Fade>
+      </Sequence>
+      <Sequence from={420} durationInFrames={2675}>
+        <Fade durationInFrames={2675}>
+          <PhoneDemo />
         </Fade>
       </Sequence>
     </AbsoluteFill>

@@ -1,35 +1,35 @@
 # Passpay — Motion (Remotion)
 
-Slides de **Problema / Solución** (intro + 2 escenas) en el estilo del front
-(fondo de flechas, gradiente indigo→teal, cards), hechas con [Remotion](https://remotion.dev).
-Se anteponen al screen-recording del demo para armar el video de pitch.
+Video de pitch **todo en Remotion**, en el estilo del front (fondo de flechas, gradiente
+indigo→teal, cards):
 
-Salida final: [`../docs/demo/passpay-pitch.mp4`](../docs/demo/passpay-pitch.mp4) (slides + demo, ~97s).
+1. **Intro · Problema · Solución** — slides animadas ([`src/Slides.tsx`](src/Slides.tsx)).
+2. **Demo** — la grabación real de la app dentro de un **marco de teléfono**, con subtítulos
+   sincronizados a cada flujo ([`src/Demo.tsx`](src/Demo.tsx), tiempos en `src/marks.json`).
+3. **Audio** — SFX sincronizados (whoosh en transiciones, pop en cada card/acción, chime en hitos:
+   [`src/AudioLayer.tsx`](src/AudioLayer.tsx)) + una cama de pad ambiente mezclada en post.
 
-## Correr
+Salida: [`../docs/demo/passpay-pitch.mp4`](../docs/demo/passpay-pitch.mp4) (~103s, 1080×1920).
+
+## Correr / render
 
 ```bash
 cd motion
 npm install
-npm run studio          # preview en Remotion Studio
+npm run studio                 # preview
+
+# generar el demo embebido (grabación real de la app deployada)
+node ../docs/demo/record-demo.js   # → produce el webm; convertir a public/demo.mp4 (h264, sin audio)
+
+# render + audio (todo el pipeline)
+bash make-final.sh             # render Remotion + pad + mezcla + loudnorm → ../docs/demo/passpay-pitch.mp4
 ```
 
-## Render
+> En máquinas con proxy TLS: prefijar `npx`/`node` con `NODE_TLS_REJECT_UNAUTHORIZED=0` y exportar
+> `CHROME=<ruta a chrome>` para que Remotion no tenga que descargar el navegador.
 
-```bash
-# 1) renderizar solo las slides (1080x1920, 14s)
-npx remotion render Slides out/slides.mp4 --codec=h264
-
-# 2) ajustar el demo a 1080x1920 y concatenar con crossfade (necesita el screen-recording)
-#    el screen-recording se genera con docs/demo/record-demo.js (Playwright contra el sitio deployado)
-ffmpeg -i ../docs/demo/demo.mp4 -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=0x0B0E14,fps=30,setsar=1,format=yuv420p" -c:v libx264 -crf 21 -an out/demo_fit.mp4
-ffmpeg -i out/slides.mp4 -i out/demo_fit.mp4 -filter_complex "[0:v][1:v]xfade=transition=fade:duration=0.5:offset=13.5,format=yuv420p[v]" -map "[v]" -c:v libx264 -crf 22 -movflags +faststart out/passpay-pitch.mp4
-```
-
-> En máquinas con proxy TLS: prefijar los comandos `npx remotion` con `NODE_TLS_REJECT_UNAUTHORIZED=0`
-> y pasar `--browser-executable=<ruta a chrome>` si Remotion no puede descargar el navegador.
-
-## Editar
-
-- `src/Slides.tsx` — las 3 escenas (Intro, Problema, Solución) + el fondo de flechas y los estilos de marca.
-- `src/Root.tsx` — dimensiones/fps/duración de la composición.
+## Assets
+- `public/demo.mp4` — grabación de pantalla (gitignored; regenerar con `record-demo.js`).
+- `public/{pop,whoosh,chime}.wav` — SFX sintetizados con ffmpeg.
+- `public/passpay-logo.svg` — logo.
+- El **pad de música** se sintetiza en `make-final.sh` (el promo no tenía pista de audio real).

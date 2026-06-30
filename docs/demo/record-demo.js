@@ -16,25 +16,15 @@ async function hideDevOverlay(page) {
   }).catch(() => {});
 }
 
-// Banner/subtítulo fijo arriba (paleta indigo→teal de la portada)
+// Grabación LIMPIA: cap() ya no dibuja banner; registra una marca de tiempo (ms desde T0)
+// para que Remotion sincronice los subtítulos sobre el marco de teléfono.
+const MARKS = [];
+let T0 = 0;
 async function cap(page, title, sub = "") {
   await hideDevOverlay(page);
-  await page.evaluate(({ title, sub }) => {
-    let el = document.getElementById("pp-cap");
-    if (!el) {
-      el = document.createElement("div");
-      el.id = "pp-cap";
-      el.style.cssText =
-        "position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(90deg,#5B4BF5,#2DD4BF);color:#fff;font:600 14px/1.35 system-ui,sans-serif;padding:9px 14px;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.45)";
-      document.body.appendChild(el);
-    }
-    el.innerHTML = title + (sub ? `<div style="font-weight:400;font-size:11px;opacity:.92;margin-top:2px">${sub}</div>` : "");
-  }, { title, sub }).catch(() => {});
+  MARKS.push({ t: Math.max(0, Date.now() - T0), title, sub });
 }
-
-async function clearCap(page) {
-  await page.evaluate(() => document.getElementById("pp-cap")?.remove()).catch(() => {});
-}
+async function clearCap() {}
 
 async function safeClickByText(page, text) {
   const btn = page.getByRole("button", { name: text });
@@ -74,6 +64,7 @@ async function scrollTo(page, y) {
 
   const page = await context.newPage();
   page.setDefaultTimeout(20000);
+  T0 = Date.now(); // referencia para las marcas de subtítulos
 
   try {
     // ───────── 0 · Home (la portada se antepone luego con ffmpeg) ─────────
@@ -227,10 +218,13 @@ async function scrollTo(page, y) {
   } catch (e) {
     console.error("ERROR_DURING_RECORDING:", e.message);
   } finally {
+    const totalMs = Date.now() - T0;
     await context.close();
     const video = page.video();
     const vpath = video ? await video.path() : null;
     await browser.close();
     console.log("VIDEO_PATH=" + vpath);
+    console.log("TOTAL_MS=" + totalMs);
+    console.log("MARKS=" + JSON.stringify(MARKS));
   }
 })();
