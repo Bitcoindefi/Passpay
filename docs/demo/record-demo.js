@@ -185,28 +185,24 @@ async function scrollTo(page, y) {
       await rampAmount.first().fill("10");
       await sleep(page, 1100);
     }
-    await cap(page, "4 · Abriendo el flujo SEP-24 del anchor", "Se abre la ventana hosted del anchor de Stellar");
-    // El anchor abre el flujo en un popup → lo capturamos y lo mostramos en cuadro
-    let sep24Url = null;
+    await cap(page, "4 · Se abre el flujo SEP-24 del anchor", "Ventana hosted del anchor (KYC + transferencia) · estado en vivo");
+    // Disparar el retiro: se abre el popup del anchor; lo cerramos y mostramos el
+    // estado de la operación en la propia pantalla de Passpay (la UI de referencia
+    // del testanchor es inestable, no la mostramos en el demo).
     try {
       const [popup] = await Promise.all([
         page.waitForEvent("popup", { timeout: 18000 }),
         page.getByRole("button", { name: /Retirar/i }).first().click(),
       ]);
-      await popup.waitForLoadState("domcontentloaded").catch(() => {});
-      await popup.waitForTimeout(1500);
-      sep24Url = popup.url();
+      await popup.waitForTimeout(700);
       await popup.close().catch(() => {});
-    } catch {}
-    await sleep(page, 1200);
-    if (sep24Url && /^https?:/i.test(sep24Url)) {
-      await page.goto(sep24Url, { waitUntil: "domcontentloaded" }).catch(() => {});
-      await page.waitForTimeout(2200);
-      await cap(page, "4 · SEP-24 — flujo hosted del anchor (Stellar)", "El usuario completa el monto y sus datos en la UI del anchor");
-      await sleep(page, 4200);
-    } else {
-      await sleep(page, 3000);
+    } catch {
+      await page.getByRole("button", { name: /Retirar/i }).first().click().catch(() => {});
     }
+    await page.getByText(/Operaci[oó]n|pending|transfer/i).first().waitFor({ state: "visible", timeout: 8000 }).catch(() => {});
+    await sleep(page, 4500);
+    await cap(page, "4 · Rampa SEP-24 lista", "On/off-ramp dólar ↔ peso con un anchor real de Stellar");
+    await sleep(page, 2500);
 
     // ───────── cierre ─────────
     await page.goto(BASE + "/", { waitUntil: "networkidle" });

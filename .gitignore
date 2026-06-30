@@ -11,3 +11,5 @@ frontend/.env.local
 # Agent skills (local AI tooling, not app code)
 .agents/
 skills-lock.json
+# música de fondo (copyright — no versionar)
+docs/demo/*.mp3

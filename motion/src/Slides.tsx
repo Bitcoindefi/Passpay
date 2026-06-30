@@ -237,8 +237,8 @@ export const Pitch: React.FC = () => {
           <Solucion />
         </Fade>
       </Sequence>
-      <Sequence from={420} durationInFrames={2675}>
-        <Fade durationInFrames={2675}>
+      <Sequence from={420} durationInFrames={2460}>
+        <Fade durationInFrames={2460}>
           <PhoneDemo />
         </Fade>
       </Sequence>
